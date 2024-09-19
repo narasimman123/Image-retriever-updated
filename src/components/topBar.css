@@ -1,0 +1,40 @@
+/* src/components/TopBar.css */
+
+.topbar-container {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  color: white;
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: rgb(26, 25, 25);
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.logout-btn:hover .logout-icon {
+  color: #3f51b5; /* Attractive hover effect */
+}
+
+.logout-icon {
+  color: #171717;
+  transition: color 0.3s ease; /* Smooth transition for hover effect */
+  margin-right: 20px;
+}

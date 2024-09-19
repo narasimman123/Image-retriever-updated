@@ -1,0 +1,204 @@
+.image-retriever-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    height: 100vh; /* Ensure the container takes up the full viewport height */
+    box-sizing: border-box; /* Include padding in the height calculation */
+  }
+  
+  .heading {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #333;
+  }
+  
+  .main-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex-grow: 1; /* Allows the main section to grow and take available space */
+  }
+  
+  .questions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .question-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  .loading-indicator {
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    color: red;
+    margin: 10px;
+    text-align: center;
+  }
+  
+  .chat-history {
+    width: 90%; /* Ensure it uses the full width */
+    flex: 1; /* Take up the remaining space */
+    overflow-y: auto; /* Enable vertical scrolling if necessary */
+    padding: 10px;
+    /* border-top: 1px solid #ddd; */
+    box-sizing: border-box; /* Include padding in the height calculation */
+    /* max-height: 380px; */
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: transparent transparent; /* For Firefox */
+    margin-left:8em
+  }
+
+
+/* For WebKit browsers like Chrome and Safari */
+.chat-history::-webkit-scrollbar {
+    width: 0px; /* Hide the scrollbar */
+  }
+  
+  .chat-history::-webkit-scrollbar-thumb {
+    background: transparent; /* Invisible scrollbar */
+  }
+  
+  .chat-history::-webkit-scrollbar-track {
+    background: transparent; /* Invisible scrollbar track */
+  }
+  
+  .chat-item {
+    margin-bottom: 10px;
+  }
+  
+  .user-bubble {
+    background-color: #dddfe3;
+    border-radius: 12px;
+    padding: 10px;
+    display: inline-block;
+    max-width: 80%;
+  }
+  
+  .response-bubble {
+    /* background-color: #f0f0f0; */
+    border-radius: 12px;
+    padding: 10px;
+    display: inline-block;
+    max-width: 80%;
+  }
+  
+  .results-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Include padding in width calculations */
+  }
+  
+  .result-item {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  /* .retrieved-image {
+    width: 100%;
+    max-width: 700px;
+    height: auto;
+    margin-bottom: 10px;
+  } */
+  
+  .additional-info {
+    text-align: left;
+    margin-top: 5px;
+  }
+  
+  .input-section {
+    /* display: flex; */
+    margin-top: 20px;
+    /* width: 80%; */
+    max-width: 900px;
+  }
+  
+  .chat-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+  }
+  
+  .send-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    background-color: #3f51b5;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .source-button {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: black;
+    /* background-color: #3f51b5; */
+    
+    border: 1px solid #3f51b5;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    /* transition: transform 0.5s; */
+  }
+  
+  .source-button:hover {
+    /* transform: 'scale(1.3)'; */
+    background-color: #303f9f;
+    color: #fff;
+    
+  }
+  
+.expand-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.retrieved-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: pointer;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.additional-info {
+  align-items: center; /* Align items vertically */
+  justify-content: flex-start; /* Align items to the left side */
+  gap: 8px; /* Add space between the items */
+  text-align: left; /* Ensure text is left-aligned */
+  margin: 0; /* Remove default margins */
+  padding: 0; /* Remove default padding */
+}

@@ -1,0 +1,137 @@
+
+  /* Results section styling */
+  .results-section {
+    /* width: 100%; */
+    /* background-color: #ffffff; */
+    border-radius: 10px;
+    /* padding: 15px; */
+    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */
+    /* margin-top: 20px; */
+  }
+  
+  .results-section p {
+    margin: 0 0 15px 0;
+  }
+ 
+  .content-retriever-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .heading {
+    margin-bottom: 10px;
+  }
+  
+  .icon-container {
+    margin-bottom: 20px;
+  }
+  
+  .input-section {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Ensures the section spans the full width */
+    margin-top: 20px;
+  }
+  
+  .chat-input {
+    flex: 1; /* Takes up the entire available space */
+  padding: 10px;
+  border-radius: 20px; /* Rounded corners for a modern look */
+  border: 1px solid #ccc;
+  font-size: 16px;
+  outline: none;
+  box-sizing: border-box; /* Ensures padding is included in the total width */
+  margin-right: 10px; /* Adds space between input and button */
+  }
+  
+  .send-btn {
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 10px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .chat-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+  }
+  
+  .chat-bubble {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+    /* max-width: 80%; */
+    word-wrap: break-word;
+  }
+  
+  .user-bubble {
+    background-color:#c9cacb1f;
+    /* flex-direction: row-reverse; */
+    /* text-align: right; */
+  }
+  
+  .response-bubble {
+    /* background-color: #fff8e1; */
+    flex-direction: row;
+    text-align: left;
+  }
+  
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+  }
+  
+  .user-icon {
+    background-color: #ff8a80;
+    border-radius: 50%;
+    padding: 5px;
+    color: white;
+  }
+  
+  .bot-icon {
+    background-color: #ffd54f;
+    border-radius: 50%;
+    padding: 5px;
+    color: white;
+  }
+  
+  .message-content {
+    display: flex;
+    flex-direction: column;
+    font-size: 16px;
+  }
+  
+  .details-section {
+    font-size: 12px;
+    color: #757575;
+    margin-top: 5px;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 10px;
+  }
+  
+  .loading-indicator {
+    margin-top: 10px;
+  }
+  

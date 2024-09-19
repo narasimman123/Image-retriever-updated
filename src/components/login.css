@@ -1,0 +1,109 @@
+/* Main login page with a very light gradient background */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1e2d56, #9ab8e3); /* Gradient from deep blue to a very light blue */
+}
+
+/* Login form container with shadow and rounded corners */
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Light shadow for elevation */
+  width: 90%;
+  max-width: 400px;
+}
+
+/* Form heading with stylish font and color */
+.login-form-container h2 {
+  margin-bottom: 24px;
+  color: #1e2d56; /* Deep blue color for the heading */
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Form styling with consistent spacing */
+.login-form-container form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Input fields with smooth transitions and focus effects */
+.input-group {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #1e2d56; /* Icon color */
+}
+
+.login-form-container input {
+  padding: 12px 12px 12px 40px; /* Add space for the icon */
+  border: 1px solid #d1d9e6; /* Light border color to match the theme */
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  width: 86%;
+
+}
+
+.login-form-container input:focus {
+  border-color: #4a6fa5; /* Slightly lighter blue focus effect */
+  box-shadow: 0 0 0 4px rgba(74, 111, 165, 0.2); /* Highlight effect on focus */
+  outline: none;
+}
+
+/* Error message styling with a clean appearance */
+.error-message {
+  color: #e63946; /* Red color for error messages */
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Button with deep blue color and interactive effects */
+.login-form-container button {
+  padding: 12px;
+ 
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s, transform 0.2s;
+  background: linear-gradient(135deg, #a2c2e0, #e0f0ff); /* Gradient background for button */
+}
+
+.login-form-container button:hover {
+  background-color: #162144; /* Slightly darker on hover */
+  transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.login-form-container button:active {
+  transform: translateY(0); /* Reset effect on click */
+}
+
+.login-form-container button:hover {
+  background: linear-gradient(135deg, #67a9d2, #82c0f9); /* Slightly darker gradient on hover */
+}
+
+.button-icon {
+  margin-left: 8px; /* Adjust this value to increase or decrease the space */
+}
+
