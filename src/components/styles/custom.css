@@ -1,0 +1,34 @@
+/* start custom css admin */
+.pptx_icons{
+    background-color: #ffa500c9;
+    color: #fff;
+    font-size: .75rem!important;
+    padding: 2px;
+    border-radius: 2px;
+  }
+.group_icons_fs{
+    font-size: 1.3rem!important;
+}
+.css-1voojl0-MuiTableCell-root ,.css-10ukr6t-MuiTableCell-root{
+    padding: 5px 16px!important;
+}
+  /* end custom css admin */
+  /* reset password start */
+  .password-strength {
+    margin-top: 5px;
+    font-size: 12px;
+  }
+  
+  .password-strength.weak {
+    color: red;
+  }
+  
+  .password-strength.medium {
+    color: orange;
+  }
+  
+  .password-strength.strong {
+    color: green;
+  }
+  
+  /* end reset password */

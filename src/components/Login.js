@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faLock, faKey, faUnlock, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faLock, faKey, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 
 const Login = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState('');
@@ -24,7 +24,11 @@ const Login = ({ setIsAuthenticated }) => {
     if (username === 'admin' && password === '1234') {
       setIsAuthenticated(true);
       localStorage.setItem('isAuthenticated', 'true'); // Save authentication state
-      navigate('/'); // Redirect to the home page after successful login
+      navigate('/admin/dashboard'); // Redirect to the home page after successful login
+    } else if (username === 'user' && password === '1234') {
+      setIsAuthenticated(true);
+      localStorage.setItem('isAuthenticated', 'true'); // Save authentication state
+      navigate('/user/dashboard'); // Redirect to the home page after successful login
     } else {
       setError('Invalid username or password');
     }
@@ -65,7 +69,7 @@ const Login = ({ setIsAuthenticated }) => {
           </div>
           {error && <p className="error-message">{error}</p>}
           <button type="submit">
-            Login <FontAwesomeIcon className="button-icon" icon={faSignInAlt} /> 
+            Login <FontAwesomeIcon className="button-icon" icon={faSignInAlt} />
           </button>
         </form>
       </div>
