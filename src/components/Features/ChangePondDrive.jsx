@@ -245,8 +245,8 @@ const ChangePondDrive = () => {
                     <span>{row.name}</span> &nbsp;&nbsp;
                     {/* <GroupIcon className='group_icons_fs' /> */}
                   </TableCell>
-                  <TableCell>May 23 2020</TableCell>
-                  <TableCell>807 KB</TableCell>
+                  <TableCell>{row.modified_date}</TableCell>
+                  <TableCell>{row.size}</TableCell>
                   <TableCell align="center">
                     <IconButton
                       color="inherit"

@@ -12,6 +12,12 @@
 .css-1voojl0-MuiTableCell-root ,.css-10ukr6t-MuiTableCell-root{
     padding: 5px 16px!important;
 }
+.css-1t7lzbz-MuiTableCell-root{
+  font-size: 1.1rem!important;
+}
+.css-10ukr6t-MuiTableCell-root{
+  font-size: 1rem!important;
+}
   /* end custom css admin */
   /* reset password start */
   .password-strength {

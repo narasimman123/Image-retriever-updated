@@ -25,7 +25,8 @@ import MuiAlert from '@mui/material/Alert';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
-
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 // Validation schema
 const validationSchema = Yup.object({
   username: Yup.string().required('Username is required'),
@@ -46,10 +47,12 @@ const SiteAccessManagement = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(process.env.REACT_APP_API_URL +'/users');
+      const response = await axios.get(process.env.REACT_APP_API_URL + '/users/list');
       setUsers(response.data); // Assuming response data is an array of users
     } catch (error) {
       showSnackbar('Error fetching users', 'error');
@@ -62,7 +65,7 @@ const SiteAccessManagement = () => {
 
   const handleAddUser = async (values, { resetForm }) => {
     try {
-      await axios.post(process.env.REACT_APP_API_URL +'/users/add', values);
+      await axios.post(process.env.REACT_APP_API_URL + '/users/add', values);
       showSnackbar('User added successfully.');
       fetchUsers(); // Refresh the user list
       resetForm();
@@ -74,7 +77,7 @@ const SiteAccessManagement = () => {
 
   const handleEditUser = async (values, { resetForm }) => {
     try {
-      await axios.post(process.env.REACT_APP_API_URL +'/users/edit', {
+      await axios.put(process.env.REACT_APP_API_URL + '/users/edit', {
         email: currentUser.email,
         username: values.username,
         status: values.status,
@@ -89,11 +92,13 @@ const SiteAccessManagement = () => {
     }
   };
 
-  const handleDeleteUser = async (email) => {
+  const handleDeleteUser = async () => {
     try {
-      await axios.post(process.env.REACT_APP_API_URL +'/users/delete', { email });
+      await axios.post(process.env.REACT_APP_API_URL + '/users/delete', { email: userToDelete.email });
       showSnackbar('User deleted successfully.');
       fetchUsers(); // Refresh the user list
+      setConfirmDeleteOpen(false);
+      setUserToDelete(null);
     } catch (error) {
       showSnackbar('Failed to delete user', 'error');
     }
@@ -142,7 +147,7 @@ const SiteAccessManagement = () => {
         Add User
       </Button>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} style={{ padding: '1%' ,width:'99%'}}>
         <Table>
           <TableHead>
             <TableRow>
@@ -153,7 +158,8 @@ const SiteAccessManagement = () => {
                 Email
               </TableCell>
               <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>Edit</TableCell>
+              <TableCell>Delete</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -161,17 +167,25 @@ const SiteAccessManagement = () => {
               <TableRow key={index}>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.status}</TableCell>
+                <TableCell>{user.status === 1 ? 'Active' : 'Inactive'}</TableCell>
                 <TableCell>
                   <Button
                     color="primary"
                     onClick={() => handleOpenDialog(user)}
                     style={{ marginRight: '10px' }}
                   >
-                    Edit
+                   <EditIcon style={{fontSize:'18px'}}/> Edit
                   </Button>
-                  <Button color="secondary" onClick={() => handleDeleteUser(user.email)}>
-                    Delete
+                </TableCell>
+                <TableCell>
+                  <Button 
+                    color="secondary" 
+                    onClick={() => {
+                      setUserToDelete(user);
+                      setConfirmDeleteOpen(true);
+                    }}
+                  >
+                    <DeleteIcon style={{fontSize:'18px'}}/>  Delete
                   </Button>
                 </TableCell>
               </TableRow>
@@ -179,7 +193,7 @@ const SiteAccessManagement = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
+      
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>{editMode ? 'Edit User' : 'Add User'}</DialogTitle>
         <DialogContent sx={{ width: '500px' }}>
@@ -223,8 +237,8 @@ const SiteAccessManagement = () => {
                       onChange={(event) => setFieldValue("status", event.target.value)}
                       error={touched.status && Boolean(errors.status)}
                     >
-                      <MenuItem value="Active">Active</MenuItem>
-                      <MenuItem value="Inactive">Inactive</MenuItem>
+                      <MenuItem value="1">Active</MenuItem>
+                      <MenuItem value="0">Inactive</MenuItem>
                     </Field>
                   </FormControl>
                 </Box>
@@ -240,6 +254,22 @@ const SiteAccessManagement = () => {
             )}
           </Formik>
         </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog for Deletion */}
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this user?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)} color="primary">
+            No
+          </Button>
+          <Button onClick={handleDeleteUser} color="secondary">
+            Yes
+          </Button>
+        </DialogActions>
       </Dialog>
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
