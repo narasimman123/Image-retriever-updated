@@ -19,22 +19,33 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
-import '../styles/custom.css';
 import AddIcon from '@mui/icons-material/Add';
+import LogoutIcon from '@mui/icons-material/Logout';
+import '../styles/custom.css';
+import { useNavigate } from 'react-router-dom';
+
 const ChangePondDrive = () => {
   const [rows, setRows] = useState([]);
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('name'); // Set to 'name' for sorting
+  const [orderBy, setOrderBy] = useState('name');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState(''); // For search functionality
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // For delete confirmation dialog
+  const navigate = useNavigate();
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -49,7 +60,7 @@ const ChangePondDrive = () => {
 
   const fetchFiles = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL +'/list-blobs');
+      const response = await fetch(process.env.REACT_APP_API_URL + '/list-blobs');
       const data = await response.json();
       if (data.blobs) {
         setRows(data.blobs);
@@ -81,7 +92,7 @@ const ChangePondDrive = () => {
     });
 
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL +'/upload-blob', {
+      const response = await fetch(process.env.REACT_APP_API_URL + '/upload-blob', {
         method: 'POST',
         body: formData,
       });
@@ -89,8 +100,8 @@ const ChangePondDrive = () => {
       if (response.ok) {
         setSnackbarMessage('Files uploaded successfully.');
         setSnackbarOpen(true);
-        setUploadedFiles([]); // Clear uploaded files after successful upload
-        await fetchFiles(); // Fetch the updated list of files
+        setUploadedFiles([]);
+        await fetchFiles();
       } else {
         setSnackbarMessage('Failed to upload files.');
         setSnackbarOpen(true);
@@ -103,7 +114,7 @@ const ChangePondDrive = () => {
 
   const handleDelete = async (fileName) => {
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL +'/delete-blob', {
+      const response = await fetch(process.env.REACT_APP_API_URL + '/delete-blob', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +125,7 @@ const ChangePondDrive = () => {
       if (response.ok) {
         setSnackbarMessage(`Successfully deleted: ${fileName}`);
         setSnackbarOpen(true);
-        await fetchFiles(); // Fetch the updated list after deletion
+        await fetchFiles();
       } else {
         setSnackbarMessage('Failed to delete file.');
         setSnackbarOpen(true);
@@ -134,11 +145,11 @@ const ChangePondDrive = () => {
       .then(blob => {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = fileName; // Set the filename for the download
+        link.download = fileName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(link.href); // Clean up the URL object
+        URL.revokeObjectURL(link.href);
       })
       .catch(error => {
         console.error('There was an error downloading the file:', error);
@@ -166,21 +177,62 @@ const ChangePondDrive = () => {
 
   const handleMenuItemClick = (action) => {
     if (action === 'delete') {
-      handleDelete(selectedFile.name);
+      setDeleteDialogOpen(true);  // Open delete confirmation dialog
     } else if (action === 'download') {
       handleDownload(selectedFile.url, selectedFile.name);
     }
     handleClose();
   };
 
-  useEffect(() => {
-    fetchFiles(); // Fetch files on component mount
-  }, []);
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
 
+  const filteredRows = rows.filter((row) => 
+    row.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleDeleteDialogClose = () => {
+    setDeleteDialogOpen(false);
+  };
+
+  const confirmDelete = () => {
+    handleDelete(selectedFile.name);
+    setDeleteDialogOpen(false);
+  };
+
+  useEffect(() => {
+    fetchFiles();
+  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    navigate('/login');
+  };
   return (
     <Box style={{ padding: '20px' }}>
-      <Typography variant="h5" gutterBottom>Change Pond Drive</Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h5" gutterBottom>Change Pond Drive</Typography>
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<LogoutIcon />}
+          onClick={() => handleLogout()}
+        >
+          Logout
+        </Button>
+      </Box>
+
       <Paper style={{ padding: '20px' }}>
+        <Box mb={2}>
+          <TextField
+            label="Search Files"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </Box>
+
         <Tooltip title="Upload PPTX files">
           <Button
             variant="contained"
@@ -188,7 +240,7 @@ const ChangePondDrive = () => {
             size="large"
             style={{ margin: '10px' }}
           >
-           <AddIcon/> New
+            <AddIcon /> New
             <input
               type="file"
               hidden
@@ -199,7 +251,6 @@ const ChangePondDrive = () => {
           </Button>
         </Tooltip>
 
-        {/* Display uploaded files */}
         {uploadedFiles.length > 0 && (
           <Box mt={2} style={{ border: '1px dotted black', padding: '0 10px', borderRadius: '5px' }}>
             <Typography variant="h6">Uploaded Files:</Typography>
@@ -225,9 +276,9 @@ const ChangePondDrive = () => {
               <TableRow>
                 <TableCell>
                   <TableSortLabel
-                    active={orderBy === 'name'} // Check against 'name'
-                    direction={orderBy === 'name' ? order : 'asc'} // Check against 'name'
-                    onClick={() => handleRequestSort('name')} // Update to 'name'
+                    active={orderBy === 'name'}
+                    direction={orderBy === 'name' ? order : 'asc'}
+                    onClick={() => handleRequestSort('name')}
                   >
                     File Name
                   </TableSortLabel>
@@ -238,20 +289,16 @@ const ChangePondDrive = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
+              {filteredRows.map((row) => (
                 <TableRow key={row.name}>
                   <TableCell>
-                    <LocalParkingIcon className='pptx_icons' /> &nbsp;&nbsp;
-                    <span>{row.name}</span> &nbsp;&nbsp;
-                    {/* <GroupIcon className='group_icons_fs' /> */}
+                    <LocalParkingIcon className="pptx_icons" /> &nbsp;
+                    {row.name}
                   </TableCell>
-                  <TableCell>{row.modified_date}</TableCell>
+                  <TableCell>{row.lastModified}</TableCell>
                   <TableCell>{row.size}</TableCell>
                   <TableCell align="center">
-                    <IconButton
-                      color="inherit"
-                      onClick={(event) => handleClick(event, row)} // Open menu for actions
-                    >
+                    <IconButton onClick={(event) => handleClick(event, row)}>
                       <MoreVertIcon />
                     </IconButton>
                     <Menu
@@ -268,13 +315,39 @@ const ChangePondDrive = () => {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-          <MuiAlert elevation={6} variant="filled" onClose={handleSnackbarClose} severity="success">
-            {snackbarMessage}
-          </MuiAlert>
-        </Snackbar>
       </Paper>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteDialogClose}
+      >
+        <DialogTitle>Delete Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Do you want to delete {selectedFile ? selectedFile.name : ''}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteDialogClose} color="primary">Cancel</Button>
+          <Button onClick={confirmDelete} color="secondary">Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleSnackbarClose}
+          severity="info"
+        >
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
     </Box>
   );
 };

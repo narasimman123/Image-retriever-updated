@@ -36,5 +36,29 @@
   .password-strength.strong {
     color: green;
   }
-  
+  .font_size_13{
+    font-size: 14px!important;
+  }
+  .bg_blue{
+    background-color: #1976d2!important;
+  }
+  .sidebar-header{
+    justify-content: center;
+  }
+  .sidebar-menu .menu-item{
+    padding: 0.75rem .5rem!important;
+  }
+  .sidebar{
+    padding: 0px!important;
+  }
+  .css-20bmp1-MuiSvgIcon-root{
+    height: 16px!important;
+  }
+  .menu-item.active{
+    border-bottom: 1px solid #fff;
+  }
+  .css-7ib2jg-MuiButtonBase-root-MuiButton-root{
+    background-color: #1976d2!important;
+    margin-bottom: 2%!important;
+  }
   /* end reset password */

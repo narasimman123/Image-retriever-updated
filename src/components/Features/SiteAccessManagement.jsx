@@ -27,6 +27,9 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate } from 'react-router-dom';
+
 // Validation schema
 const validationSchema = Yup.object({
   username: Yup.string().required('Username is required'),
@@ -49,7 +52,7 @@ const SiteAccessManagement = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-
+  const navigate = useNavigate();
   const fetchUsers = async () => {
     try {
       const response = await axios.get(process.env.REACT_APP_API_URL + '/users/list');
@@ -132,12 +135,23 @@ const SiteAccessManagement = () => {
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
-
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    navigate('/login');
+  };
   return (
     <Box style={{ padding: '20px' }}>
-      <Typography variant="h5" style={{ textAlign: 'center' }}>
-        Site Access Management
-      </Typography>
+       <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h5" gutterBottom>Site Access Management</Typography>
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<LogoutIcon />}
+          onClick={() => handleLogout()}
+        >
+          Logout
+        </Button>
+      </Box>
       <Button
         variant="contained"
         color="primary"
@@ -223,7 +237,7 @@ const SiteAccessManagement = () => {
                     as={TextField}
                     name="email"
                     label="Email"
-                    fullWidth
+                    fullWidth disabled 
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                   />

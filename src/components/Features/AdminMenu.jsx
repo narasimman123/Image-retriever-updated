@@ -1,130 +1,64 @@
-// import React, { useState } from 'react';
-// import { AppBar, Toolbar, Typography, Button, Drawer, List, ListItem, ListItemText } from '@mui/material';
-// import { Box } from '@mui/system';
-
-// const AdminMenu = () => {
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
-//   const [drawerOpen, setDrawerOpen] = useState(true); // Sidebar open by default
-
-//   const handleLogin = () => {
-//     setIsLoggedIn(true);
-//   };
-
-//   const handleLogout = () => {
-//     setIsLoggedIn(false);
-//   };
-
-//   return (
-//     <Box display="flex">
-//       {/* Sidebar */}
-//       <Drawer
-//         variant="persistent"
-//         open={drawerOpen}
-//         sx={{
-//           width: '15%',
-//           flexShrink: 0,
-//           '& .MuiDrawer-paper': {
-//             width: '15%',
-//             boxSizing: 'border-box',
-//           },
-//         }}
-//       >
-//         <List>
-//           <ListItem button>
-//             <ListItemText primary="Home" />
-//           </ListItem>
-//           <ListItem button>
-//             <ListItemText primary="About" />
-//           </ListItem>
-//         </List>
-//       </Drawer>
-
-//       {/* Main Content Area */}
-//       <Box
-//         component="main"
-//         sx={{
-//           flexGrow: 1,
-//           padding: '20px',
-//           marginLeft: drawerOpen ? '15%' : '0', // Adjust margin based on sidebar
-//           transition: 'margin 0.3s', // Smooth transition
-//         }}
-//       >
-//         {/* AppBar that spans the full width */}
-//         <AppBar position="static">
-//           <Toolbar>
-//             <Typography variant="h6" style={{ flexGrow: 1 }}>
-//               My App
-//             </Typography>
-//             {isLoggedIn ? (
-//               <Button color="inherit" onClick={handleLogout}>
-//                 Logout
-//               </Button>
-//             ) : (
-//               <Button color="inherit" onClick={handleLogin}>
-//                 Login
-//               </Button>
-//             )}
-//           </Toolbar>
-//         </AppBar>
-
-//         <Typography variant="h4" style={{ marginTop: '20px' }}>
-//           Welcome to My App
-//         </Typography>
-//         {isLoggedIn ? (
-//           <Typography variant="body1">You are logged in!</Typography>
-//         ) : (
-//           <Typography variant="body1">Please log in to access more features.</Typography>
-//         )}
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default AdminMenu;
 import React, { useState, useEffect } from 'react';
 import { FaBars, FaSync, FaSignOutAlt } from 'react-icons/fa';
-import { Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom';
-import ImageRetriever from '../ImageRetriever'; 
-import ContentRetriever from '../ContentRetriever'; 
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import ImageRetriever from '../ImageRetriever';
+import ContentRetriever from '../ContentRetriever';
 import TopBar from '../TopBar';
 import Login from '../Login';
 import '../findIn.css';
 import axios from 'axios';
 import ChangePondDrive from './ChangePondDrive';
 import SiteAccessManagement from './SiteAccessManagement';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { Snackbar, Alert } from '@mui/material';
 
 const AdminMenu = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [sidemenuHide, setSidemenuHide] = useState(0);
+  const [activeMenu, setActiveMenu] = useState(0);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
+  
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(false); // State to track loading
-  const [sidemenuHide, setSidemenuHide] = useState(0);
+
   const handleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
+
   const handleSideMenu = (data) => {
     setSidemenuHide(data);
-  }
+    setActiveMenu(data);
+  };
+
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('isAuthenticated');
     navigate('/login');
   };
 
-  const isImageActive = location.pathname === '/';
-  // const isContentActive = location.pathname === '/content-retriever';
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   const handleDemandClick = async () => {
-    setIsLoading(true); // Start loading
     try {
       const response = await axios.post('/api/update-vector');
       if (response.status === 200) {
+        setSnackbarMessage('Update successful!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
         window.location.reload();
       }
     } catch (error) {
       console.error('Error calling the API:', error);
-      setIsLoading(false); // Stop loading in case of error
+      setSnackbarMessage('Error updating data.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
@@ -134,40 +68,39 @@ const AdminMenu = () => {
         <TopBar onLogout={handleLogout} />
       </div>
       <div className="findin-container">
-        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+        <aside className={`sidebar bg_blue ${isCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
             {!isCollapsed && <h2 className="sidebar-title">AI Retrievers</h2>}
-            <button className="collapse-btn" onClick={handleCollapse}>
-              <FaBars />
-            </button>
           </div>
           {!isCollapsed && (
             <div className="sidebar-menu">
-              <Link className={`menu-item ${isImageActive ? 'active' : ''}`} onClick={()=>handleSideMenu(0)}>
-              Changepond drive
+              <Link className={`font_size_13 menu-item ${activeMenu === 0 ? 'active' : ''}`} onClick={() => handleSideMenu(0)}>
+                <DriveFolderUploadIcon /> Change Pond Drive
               </Link>
-              <Link className={`menu-item ${isImageActive ? 'active' : ''}`}  onClick={()=>handleSideMenu(1)}>
-              Access for site
+              <Link className={`font_size_13 menu-item ${activeMenu === 1 ? 'active' : ''}`} onClick={() => handleSideMenu(1)}>
+                <SettingsIcon /> Access for Site
               </Link>
-              <button className="outlined-button logout-btn" onClick={handleLogout}>
-                <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
-              </button>
+              <Link className={`font_size_13 menu-item ${activeMenu === 'On_demand' ? 'active' : ''}`} onClick={handleDemandClick}>
+                <RefreshIcon /> On Demand
+              </Link>
             </div>
           )}
         </aside>
 
         <div className="main-content">
-            <>
-            {sidemenuHide===0 && <ChangePondDrive />}
-            {sidemenuHide===1 && <SiteAccessManagement />}
-            </>
-          {/* <Routes>
-            <Route path="/" element={<ChangePondDrive />} />
-            <Route path="/admin/site-access-management" element={<SiteAccessManagement />} />
-          </Routes> */}
+          {sidemenuHide === 0 && <ChangePondDrive />}
+          {sidemenuHide === 1 && <SiteAccessManagement />}
         </div>
       </div>
+
+      {/* Snackbar for displaying messages */}
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
+
 export default AdminMenu;

@@ -10,7 +10,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} {...props} />;
 });
 
-const Login = ({ setIsAuthenticated }) => {
+const UserLogin = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -72,13 +72,20 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-    if (error) setError('');
+    const inputUsername = e.target.value;
+    setUsername(inputUsername);
+    
+    // Validate that the username ends with @changepond.com
+    if (inputUsername && !inputUsername.endsWith('@changepond.com')) {
+      setError('Username must end with @changepond.com');
+    } else {
+      if (error) setError(''); // Clear error if it was previously set
+    }
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    if (error) setError('');
+    if (error) setError(''); // Clear error if it was previously set
   };
 
   const handleCloseSnackbar = () => {
@@ -88,7 +95,7 @@ const Login = ({ setIsAuthenticated }) => {
   return (
     <div className="login-page">
       <div className="login-form-container">
-        <h2><FontAwesomeIcon icon={faKey} className="heading-icon" /> Login</h2>
+        <h2><FontAwesomeIcon icon={faKey} className="heading-icon" /> User Login</h2>
         <form onSubmit={handleLogin}>
           <div className="input-group">
             <FontAwesomeIcon icon={faUser} className="input-icon" />
@@ -109,7 +116,9 @@ const Login = ({ setIsAuthenticated }) => {
             />
           </div>
           {error && <p className="error-message">{error}</p>}
-          <button type="submit">
+          <a href="/forgot-password" className="forgot-password-link">Forgot Password?</a>
+          <br></br>
+          <button type="submit" disabled={!username.endsWith('@changepond.com')}> {/* Disable button if username is invalid */}
             Login <FontAwesomeIcon className="button-icon" icon={faSignInAlt} />
           </button>
         </form>
@@ -125,4 +134,4 @@ const Login = ({ setIsAuthenticated }) => {
   );
 };
 
-export default Login;
+export default UserLogin;
