@@ -227,7 +227,7 @@ const SiteAccessManagement = () => {
                     as={TextField}
                     name="username"
                     label="Username"
-                    fullWidth
+                    fullWidth disabled={editMode}
                     error={touched.username && Boolean(errors.username)}
                     helperText={touched.username && errors.username}
                   />
@@ -237,7 +237,7 @@ const SiteAccessManagement = () => {
                     as={TextField}
                     name="email"
                     label="Email"
-                    fullWidth disabled 
+                    fullWidth  
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                   />

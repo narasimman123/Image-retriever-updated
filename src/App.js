@@ -24,10 +24,10 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path="/admin/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
       <Route path="/user/login" element={<UserLogin/>} />
       {/* Default route */}
-      <Route path="" element={isAuthenticated ? <FindIn /> : <Navigate to="/login" />} />
+      <Route path="" element={<Navigate to="/user/login" />} />
 
       {/* Redirect all unknown routes */}
       <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
@@ -47,7 +47,7 @@ function App() {
           <Route path="/user/dashboard" element={<FindIn />} />
         </>
       )}
-      <Route path="/user/reset-password" element={<NewUserResetPassword />} />
+      <Route path="/user/reset-password/:token" element={<NewUserResetPassword />} />
     </Routes>
   );
 }

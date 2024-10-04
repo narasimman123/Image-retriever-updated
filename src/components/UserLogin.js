@@ -116,7 +116,7 @@ const UserLogin = ({ setIsAuthenticated }) => {
             />
           </div>
           {error && <p className="error-message">{error}</p>}
-          <a href="/forgot-password" className="forgot-password-link">Forgot Password?</a>
+          <a href="/user/reset-password" className="forgot-password-link">Forgot Password?</a>
           <br></br>
           <button type="submit" disabled={!username.endsWith('@changepond.com')}> {/* Disable button if username is invalid */}
             Login <FontAwesomeIcon className="button-icon" icon={faSignInAlt} />

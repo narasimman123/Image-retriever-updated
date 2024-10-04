@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faSignInAlt, faKey } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import '../styles/custom.css';
+
 const NewUserResetPassword = () => {
+  const { token } = useParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [resetToken, setResetToken] = useState(''); // Assuming you'll get the reset token from URL or props
+  const [resetToken] = useState(token);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [passwordStrength, setPasswordStrength] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const navigate = useNavigate();
 
   const checkPasswordStrength = (password) => {
@@ -32,9 +34,7 @@ const NewUserResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
-    // Validate form
     if (!password || !confirmPassword) {
       setError('Please fill in all fields.');
       return;
@@ -49,18 +49,35 @@ const NewUserResetPassword = () => {
     }
 
     try {
-      const response = await axios.post(process.env.REACT_APP_API_URL + '/reset_password/', {
+      await axios.post(process.env.REACT_APP_API_URL + '/reset_password/', {
         password,
         confirm_password: confirmPassword,
-        reset_token: resetToken,
+        token: resetToken,
       });
-      setSuccess('Password reset successfully!');
-      // Redirect or perform any additional actions here
-      setTimeout(() => navigate('/login'), 2000); // Redirect to login after 2 seconds
+      setIsModalOpen(true); // Open the modal on success
     } catch (err) {
       setError('Failed to reset password. Please try again.');
       console.error(err);
     }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    navigate('/user/login'); // Redirect to login after closing modal
+  };
+
+  // Modal Component
+  const Modal = ({ isOpen, onClose, message }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <p>{message}</p>
+          <button onClick={onClose}>Okay</button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -70,7 +87,6 @@ const NewUserResetPassword = () => {
           <FontAwesomeIcon icon={faKey} className="heading-icon" /> Reset Password
         </h2>
         {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
         <form onSubmit={handleSubmit}>
           <div className="input-group" style={{ marginBottom: '0px' }}>
             <FontAwesomeIcon icon={faLock} className="input-icon" />
@@ -101,6 +117,13 @@ const NewUserResetPassword = () => {
           </button>
         </form>
       </div>
+
+      {/* Modal for success message */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        message="Password reset successfully!"
+      />
     </div>
   );
 };
