@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faSignInAlt, faKey } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import '../styles/custom.css';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
 const NewUserResetPassword = () => {
   const { token } = useParams();
@@ -49,7 +50,7 @@ const NewUserResetPassword = () => {
     }
 
     try {
-      await axios.post(process.env.REACT_APP_API_URL + '/reset_password/', {
+      await axios.post(process.env.REACT_APP_API_URL + '/reset_password', {
         password,
         confirm_password: confirmPassword,
         token: resetToken,
@@ -64,20 +65,6 @@ const NewUserResetPassword = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
     navigate('/user/login'); // Redirect to login after closing modal
-  };
-
-  // Modal Component
-  const Modal = ({ isOpen, onClose, message }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <p>{message}</p>
-          <button onClick={onClose}>Okay</button>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -118,12 +105,18 @@ const NewUserResetPassword = () => {
         </form>
       </div>
 
-      {/* Modal for success message */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        message="Password reset successfully!"
-      />
+      {/* Modal for success message using Material-UI Dialog */}
+      <Dialog open={isModalOpen} onClose={handleModalClose}>
+        <DialogTitle style={{ color: '#068406',fontSize: '24px',fontWeight: 'bold' }}>Success</DialogTitle>
+        <DialogContent >
+          <p style={{ fontSize: '19px' }}>Password reset successfully!</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleModalClose} style={{ backgroundColor: '#2196f3', color: 'white' }}>
+            Okay
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

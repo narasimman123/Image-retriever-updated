@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock, faKey, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
@@ -18,9 +18,15 @@ const UserLogin = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    if (authStatus) {
-      navigate('/');
+    // const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+    const userData = localStorage.getItem('user');
+    if(userData) {
+      const user = JSON.parse(userData);
+      if (user.role_id === 1) {
+        navigate('/admin/dashboard');
+      } else if (user.role_id === 2) {
+        navigate('/user/dashboard');
+      }
     }
   }, [navigate]);
 
@@ -40,23 +46,24 @@ const UserLogin = ({ setIsAuthenticated }) => {
       });
 
       const data = await response.json();
-
-      if (response.ok) {
+      console.log(response)
+      if (response.status===200) {
         const { user } = data;
 
         // Check user status and role
         if (user.status === 1) {
-          setIsAuthenticated(true);
-          
+          // setIsAuthenticated(true);
           // Store user data in localStorage
           localStorage.setItem('isAuthenticated', 'true');
           localStorage.setItem('user', JSON.stringify(user)); // Store user data
-
-          if (user.role_id === 1) {
-            navigate('/admin/dashboard');
-          } else if (user.role_id === 2) {
-            navigate('/user/dashboard');
-          }
+          window.location.reload();
+          // if (user.role_id === 1) {
+          //   navigate('/admin/dashboard');
+          //   window.location.reload();
+          // } else if (user.role_id === 2) {
+          //   navigate('/user/dashboard');
+          //   window.location.reload();
+          // }
         } else {
           setError('User is not active');
           setSnackbarOpen(true);
@@ -75,9 +82,9 @@ const UserLogin = ({ setIsAuthenticated }) => {
     const inputUsername = e.target.value;
     setUsername(inputUsername);
     
-    // Validate that the username ends with @changepond.com
-    if (inputUsername && !inputUsername.endsWith('@changepond.com')) {
-      setError('Username must end with @changepond.com');
+    // Validate that the username ends with @mailinator.com
+    if (inputUsername && !inputUsername.endsWith('@mailinator.com')) {
+      setError('Username must end with @mailinator.com');
     } else {
       if (error) setError(''); // Clear error if it was previously set
     }
@@ -116,9 +123,9 @@ const UserLogin = ({ setIsAuthenticated }) => {
             />
           </div>
           {error && <p className="error-message">{error}</p>}
-          <a href="/user/reset-password" className="forgot-password-link">Forgot Password?</a>
+          <Link to="/user/forgot-password" className="forgot-password-link">Forgot Password?</Link>
           <br></br>
-          <button type="submit" disabled={!username.endsWith('@changepond.com')}> {/* Disable button if username is invalid */}
+          <button type="submit" disabled={!username.endsWith('@mailinator.com')}> {/* Disable button if username is invalid */}
             Login <FontAwesomeIcon className="button-icon" icon={faSignInAlt} />
           </button>
         </form>

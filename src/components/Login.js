@@ -19,10 +19,16 @@ const Login = ({ setIsAuthenticated }) => {
 
   useEffect(() => {
     const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    if (authStatus) {
-      navigate('/');
+    const userData = localStorage.getItem('user');
+    if(userData) {
+      const user = JSON.parse(userData);
+      if (user.role_id === 1) {
+        navigate('/admin/dashboard');
+      } else if (user.role_id === 2) {
+        navigate('/user/dashboard');
+      }
     }
-  }, [navigate]);
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -54,8 +60,10 @@ const Login = ({ setIsAuthenticated }) => {
 
           if (user.role_id === 1) {
             navigate('/admin/dashboard');
+            window.location.reload();
           } else if (user.role_id === 2) {
             navigate('/user/dashboard');
+            window.location.reload();
           }
         } else {
           setError('User is not active');
@@ -88,7 +96,7 @@ const Login = ({ setIsAuthenticated }) => {
   return (
     <div className="login-page">
       <div className="login-form-container">
-        <h2><FontAwesomeIcon icon={faKey} className="heading-icon" /> Login</h2>
+        <h2><FontAwesomeIcon icon={faKey} className="heading-icon" />  Admin Login</h2>
         <form onSubmit={handleLogin}>
           <div className="input-group">
             <FontAwesomeIcon icon={faUser} className="input-icon" />

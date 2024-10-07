@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaBars, FaSync, FaSignOutAlt } from 'react-icons/fa';
 import { Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom';
-import ImageRetriever from './ImageRetriever'; 
-import ContentRetriever from './ContentRetriever'; 
+import ImageRetriever from './ImageRetriever';
+import ContentRetriever from './ContentRetriever';
 import TopBar from './TopBar';
 import Login from './Login';
 import './findIn.css';
@@ -15,17 +15,32 @@ const FindIn = () => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false); // State to track loading
 
+  // useEffect(() => {
+  //   const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+  //   if (authStatus) {
+  //     setIsAuthenticated(true);
+  //   } else {
+  //     if (location.pathname !== '/login') {
+  //       navigate('/login');
+  //     }
+  //   }
+  // }, [navigate, location.pathname]);
   useEffect(() => {
     const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+    const userData = localStorage.getItem('user');
+    const user = JSON.parse(userData);
     if (authStatus) {
       setIsAuthenticated(true);
-    } else {
-      if (location.pathname !== '/login') {
-        navigate('/login');
-      }
     }
-  }, [navigate, location.pathname]);
-
+    if (authStatus && user && user.role_id === 1) {
+          navigate('/admin/dashboard');
+      } else if (authStatus && user && user.role_id === 2) {
+        navigate('/user/dashboard');
+      }
+    // } else {
+    //   navigate('/user/login');
+    // }
+  }, []);
   const handleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -33,14 +48,9 @@ const FindIn = () => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('isAuthenticated');
-    navigate('/login');
+    localStorage.removeItem('user');
+    navigate('/user/login');
   };
-
-  // If not authenticated, show the login page
-  if (!isAuthenticated) {
-    return <Login setIsAuthenticated={setIsAuthenticated} />;
-  }
-
   const isImageActive = location.pathname === '/';
   // const isContentActive = location.pathname === '/content-retriever';
 
@@ -58,7 +68,7 @@ const FindIn = () => {
   };
 
   return (
-    <> 
+    <>
       <div className="topbar-container">
         <TopBar onLogout={handleLogout} />
       </div>
@@ -66,17 +76,17 @@ const FindIn = () => {
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
             {!isCollapsed && <h2 className="sidebar-title">AI Retrievers</h2>}
-            <button className="collapse-btn" onClick={handleCollapse}>
+            {/* <button className="collapse-btn" onClick={handleCollapse}>
               <FaBars />
-            </button>
+            </button> */}
           </div>
           {!isCollapsed && (
             <div className="sidebar-menu">
               <Link to="/" className={`menu-item ${isImageActive ? 'active' : ''}`}>
                 Image Retriever
               </Link>
-              <Link to="" className={`menu-item ${isImageActive ? 'active' : ''}`}   onClick={handleDemandClick} >
-                <FaSync style={{ marginRight: '8px' }} /> 
+              <Link to="" className={`menu-item ${isImageActive ? 'active' : ''}`} onClick={handleDemandClick} >
+                <FaSync style={{ marginRight: '8px' }} />
                 {isLoading ? 'Updating...' : 'Demand'}
                 {/* Demand */}
               </Link>

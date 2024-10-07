@@ -22,7 +22,7 @@ const AdminMenu = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
-  
+  const [updateDemanName,SetUpdateDemanName] = useState('On Demand');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,10 +46,12 @@ const AdminMenu = () => {
   };
 
   const handleDemandClick = async () => {
+    SetUpdateDemanName('Updating...');
     try {
       const response = await axios.post('/api/update-vector');
       if (response.status === 200) {
         setSnackbarMessage('Update successful!');
+        SetUpdateDemanName('Updated...');
         setSnackbarSeverity('success');
         setSnackbarOpen(true);
         window.location.reload();
@@ -81,7 +83,7 @@ const AdminMenu = () => {
                 <SettingsIcon /> Access for Site
               </Link>
               <Link className={`font_size_13 menu-item ${activeMenu === 'On_demand' ? 'active' : ''}`} onClick={handleDemandClick}>
-                <RefreshIcon /> On Demand
+                <RefreshIcon /> {updateDemanName}
               </Link>
             </div>
           )}

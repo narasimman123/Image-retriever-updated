@@ -137,7 +137,8 @@ const SiteAccessManagement = () => {
   };
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    navigate('/login');
+    localStorage.removeItem('user');
+    navigate('/admin/login');
   };
   return (
     <Box style={{ padding: '20px' }}>
@@ -178,31 +179,35 @@ const SiteAccessManagement = () => {
           </TableHead>
           <TableBody>
             {users.map((user, index) => (
-              <TableRow key={index}>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.status === 1 ? 'Active' : 'Inactive'}</TableCell>
-                <TableCell>
-                  <Button
-                    color="primary"
-                    onClick={() => handleOpenDialog(user)}
-                    style={{ marginRight: '10px' }}
-                  >
-                   <EditIcon style={{fontSize:'18px'}}/> Edit
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    color="secondary" 
-                    onClick={() => {
-                      setUserToDelete(user);
-                      setConfirmDeleteOpen(true);
-                    }}
-                  >
-                    <DeleteIcon style={{fontSize:'18px'}}/>  Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
+              <>
+                {user.role_id != 1 &&
+                  <TableRow key={index}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.status === 1 ? 'Active' : 'Inactive'}</TableCell>
+                    <TableCell>
+                      <Button
+                        color="primary"
+                        onClick={() => handleOpenDialog(user)}
+                        style={{ marginRight: '10px' }}
+                      >
+                        <EditIcon style={{ fontSize: '18px' }} /> Edit
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        color="secondary"
+                        onClick={() => {
+                          setUserToDelete(user);
+                          setConfirmDeleteOpen(true);
+                        }}
+                      >
+                        <DeleteIcon style={{ fontSize: '18px' }} />  Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                }
+              </>
             ))}
           </TableBody>
         </Table>
@@ -221,13 +226,13 @@ const SiteAccessManagement = () => {
             onSubmit={editMode ? handleEditUser : handleAddUser}
           >
             {({ errors, touched, setFieldValue }) => (
-              <Form>
+              <Form><br></br>
                 <Box mb={2}>
                   <Field
                     as={TextField}
                     name="username"
                     label="Username"
-                    fullWidth disabled={editMode}
+                    fullWidth 
                     error={touched.username && Boolean(errors.username)}
                     helperText={touched.username && errors.username}
                   />
@@ -237,14 +242,15 @@ const SiteAccessManagement = () => {
                     as={TextField}
                     name="email"
                     label="Email"
-                    fullWidth  
+                    fullWidth disabled={editMode}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                   />
                 </Box>
                 <Box mb={2}>
+                <InputLabel>Status</InputLabel>
                   <FormControl fullWidth>
-                    <InputLabel>Status</InputLabel>
+                    
                     <Field
                       as={Select}
                       name="status"

@@ -136,24 +136,29 @@ const ChangePondDrive = () => {
     }
   };
 
-  const handleDownload = (url, fileName) => {
-    fetch(url)
-      .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.blob();
-      })
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      })
-      .catch(error => {
-        console.error('There was an error downloading the file:', error);
-      });
+  const handleDownload = async (fileName) => {
+    try {
+      const response = await fetch(`http://localhost:5000/download-blob?blob_name=${fileName}`);
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const blob = await response.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      setSnackbarMessage(`Downloaded: ${fileName}`);
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('There was an error downloading the file:', error);
+      setSnackbarMessage('Error downloading the file.');
+      setSnackbarOpen(true);
+    }
   };
 
   const handleUploadDelete = (fileName) => {
@@ -177,9 +182,9 @@ const ChangePondDrive = () => {
 
   const handleMenuItemClick = (action) => {
     if (action === 'delete') {
-      setDeleteDialogOpen(true);  // Open delete confirmation dialog
+      setDeleteDialogOpen(true);
     } else if (action === 'download') {
-      handleDownload(selectedFile.url, selectedFile.name);
+      handleDownload(selectedFile.name);  // Pass the file name directly
     }
     handleClose();
   };
@@ -206,7 +211,8 @@ const ChangePondDrive = () => {
   }, []);
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    navigate('/login');
+    localStorage.removeItem('user');
+    navigate('/admin/login');
   };
   return (
     <Box style={{ padding: '20px' }}>
@@ -216,7 +222,7 @@ const ChangePondDrive = () => {
           variant="contained"
           color="secondary"
           startIcon={<LogoutIcon />}
-          onClick={() => handleLogout()}
+          onClick={handleLogout}
         >
           Logout
         </Button>
@@ -295,7 +301,7 @@ const ChangePondDrive = () => {
                     <LocalParkingIcon className="pptx_icons" /> &nbsp;
                     {row.name}
                   </TableCell>
-                  <TableCell>{row.lastModified}</TableCell>
+                  <TableCell>{row.modified_date}</TableCell>
                   <TableCell>{row.size}</TableCell>
                   <TableCell align="center">
                     <IconButton onClick={(event) => handleClick(event, row)}>
