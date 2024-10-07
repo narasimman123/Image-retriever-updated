@@ -68,7 +68,7 @@ const FindIn = () => {
           {!isCollapsed && (
             <div className="sidebar-menu">
               <Link to="/" className={`menu-item ${isImageActive ? 'active' : ''}`}>
-               <CollectionsIcon/> Image Retriever -
+               <CollectionsIcon/> Image Retriever 
               </Link>
               {/* <button className="outlined-button logout-btn" onClick={handleLogout}>
                 <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout

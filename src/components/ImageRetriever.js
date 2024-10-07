@@ -148,7 +148,7 @@ const ImageRetriever = () => {
 
   return (
     <div className="image-retriever-container">
-      <h1 className="heading">Find IT</h1>
+      <h1 className="heading">FindIT</h1>
 
       <div className="chat-history" ref={chatHistoryRef}>
         {chatHistory.map((entry, index) => (
