@@ -162,51 +162,52 @@ const ImageRetriever = () => {
             </div>
             <div className="message-content">{entry.text}</div>
             {entry.results && (
-              <div className="results-section">
-                {entry.results.map((result, idx) => (
-                  <div key={idx} className="result-item">
-                    {result.img_base64 ? (
-                      <div className="image-container">
-                        <Tooltip title="View Image in full screen" arrow>
-                          <IconButton
-                            className="expand-icon"
-                            onClick={() => handleImageClick(result.img_base64)}
-                            aria-label="Expand Image"
-                            style={{ position: 'absolute', top: -37, right: -28, color: 'black' }}
-                          >
-                            <FullscreenIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <img
-                          src={`data:image/png;base64,${result.img_base64}`}
-                          alt={`Retrieved content ${idx}`}
-                          className="retrieved-image"
-                          style={{ cursor: 'pointer' }}
-                        />
-                      </div>
-                    ) : (
-                      <p>No image available</p>
-                    )}
-                    <div className="additional-info">
-                      <p><strong>Distance :</strong> {result.distance ? result.distance.toFixed(2) : 'N/A'}</p>
-                      <p><strong>Slide :</strong> {result.slide ? result.slide : 'N/A'}</p>
-                      <p>
-                        {result.source ? (
-                           <Tooltip title={result.source.replace(/\\/g, '/')} arrow>
-                           <button onClick={() => handleDownload(result.source)} className="source-button">
-                             <DownloadIcon style={{ marginRight: '8px' }} />
-                             Download
-                           </button>
-                         </Tooltip>
-                        ) : (
-                          'N/A'
-                        )}
-                      </p>
-                      <hr></hr>
-                    </div>
-                  </div>
-                ))}
-              </div>
+             <div className="results-section">
+             {entry.results.map((result, idx) => (
+               <div key={idx} className="result-item">
+                 {result.img_base64 ? (
+                   <div className="image-container">
+                     <Tooltip title="View Image in full screen" arrow>
+                       <IconButton
+                         className="expand-icon"
+                         onClick={() => handleImageClick(result.img_base64)}
+                         aria-label="Expand Image"
+                         style={{ position: 'absolute', top: -37, right: -28, color: 'black' }}
+                       >
+                         <FullscreenIcon />
+                       </IconButton>
+                     </Tooltip>
+                     <img
+                       src={`data:image/png;base64,${result.img_base64}`}
+                       alt={`Retrieved content ${idx}`}
+                       className="retrieved-image"
+                       style={{ cursor: 'pointer' }}
+                     />
+                   </div>
+                 ) : (
+                   <p>No image available</p>
+                 )}
+                 <div className="additional-info">
+                   <p><strong>Distance :</strong> {result.distance ? result.distance.toFixed(2) : 'N/A'}</p>
+                   <p><strong>Slide :</strong> {result.slide ? result.slide : 'N/A'}</p>
+                   <p>
+                     {result.source ? (
+                       <Tooltip title={result.source.replace(/\\/g, '/')} arrow>
+                         <button onClick={() => handleDownload(result.source)} className="source-button">
+                           <DownloadIcon style={{ marginRight: '8px' }} />
+                           Download
+                         </button>
+                       </Tooltip>
+                     ) : (
+                       'N/A'
+                     )}
+                   </p>
+                   {/* Conditionally render <hr> if this is not the last result */}
+                   {idx < entry.results.length - 1 && <hr />}
+                 </div>
+               </div>
+             ))}
+           </div>           
             )}
           </div>
         ))}

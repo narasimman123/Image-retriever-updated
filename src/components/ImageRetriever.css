@@ -49,7 +49,7 @@
   }
   
   .chat-history {
-    width: 90%; /* Ensure it uses the full width */
+    width: 95%; /* Ensure it uses the full width */
     flex: 1; /* Take up the remaining space */
     overflow-y: auto; /* Enable vertical scrolling if necessary */
     padding: 10px;
@@ -58,7 +58,7 @@
     /* max-height: 380px; */
     scrollbar-width: thin; /* For Firefox */
     scrollbar-color: transparent transparent; /* For Firefox */
-    margin-left:8em
+    margin-left:7em
   }
 
 
