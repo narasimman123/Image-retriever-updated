@@ -7,43 +7,32 @@ import TopBar from './TopBar';
 import Login from './Login';
 import './findIn.css';
 import axios from 'axios';
-
+import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import CollectionsIcon from '@mui/icons-material/Collections';
 const FindIn = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('User'); // State for username
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false); // State to track loading
 
-  // useEffect(() => {
-  //   const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-  //   if (authStatus) {
-  //     setIsAuthenticated(true);
-  //   } else {
-  //     if (location.pathname !== '/login') {
-  //       navigate('/login');
-  //     }
-  //   }
-  // }, [navigate, location.pathname]);
   useEffect(() => {
     const authStatus = localStorage.getItem('isAuthenticated') === 'true';
     const userData = localStorage.getItem('user');
     const user = JSON.parse(userData);
     if (authStatus) {
       setIsAuthenticated(true);
+      if (user) {
+        setUsername(user.username); // Set the username
+      }
     }
     if (authStatus && user && user.role_id === 1) {
-          navigate('/admin/dashboard');
-      } else if (authStatus && user && user.role_id === 2) {
-        navigate('/user/dashboard');
-      }
-    // } else {
-    //   navigate('/user/login');
-    // }
-  }, []);
-  // const handleCollapse = () => {
-  //   setIsCollapsed(!isCollapsed);
-  // };
+      navigate('/admin/dashboard');
+    } else if (authStatus && user && user.role_id === 2) {
+      navigate('/user/dashboard');
+    }
+  }, [navigate]);
 
   const handleLogout = () => {
     setIsAuthenticated(false);
@@ -51,8 +40,8 @@ const FindIn = () => {
     localStorage.removeItem('user');
     navigate('/user/login');
   };
+
   const isImageActive = location.pathname === '/';
-  // const isContentActive = location.pathname === '/content-retriever';
 
   const handleDemandClick = async () => {
     setIsLoading(true); // Start loading
@@ -69,35 +58,36 @@ const FindIn = () => {
 
   return (
     <>
-      <div className="topbar-container">
-        <TopBar onLogout={handleLogout} />
-      </div>
+      
+
       <div className="findin-container">
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
             {!isCollapsed && <h2 className="sidebar-title">AI Retrievers</h2>}
-            {/* <button className="collapse-btn" onClick={handleCollapse}>
-              <FaBars />
-            </button> */}
           </div>
           {!isCollapsed && (
             <div className="sidebar-menu">
               <Link to="/" className={`menu-item ${isImageActive ? 'active' : ''}`}>
-                Image Retriever
+               <CollectionsIcon/> Image Retriever -
               </Link>
-              {/* <Link to="" className={`menu-item ${isImageActive ? 'active' : ''}`} onClick={handleDemandClick} >
-                <FaSync style={{ marginRight: '8px' }} />
-                {isLoading ? 'Updating...' : 'Demand'}
-                Demand
-              </Link> */}
-              <button className="outlined-button logout-btn" onClick={handleLogout}>
+              {/* <button className="outlined-button logout-btn" onClick={handleLogout}>
                 <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
-              </button>
+              </button> */}
             </div>
           )}
         </aside>
 
         <div className="main-content">
+        <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" style={{ flexGrow: 1 }}>
+            Welcome {username} !
+          </Typography>
+          <Button color="inherit" onClick={handleLogout} style={{ border:'1px solid #fff' }}>
+            <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
+          </Button>
+        </Toolbar>
+      </AppBar>
           <Routes>
             <Route path="/" element={<ImageRetriever />} />
             <Route path="/content-retriever" element={<ContentRetriever />} />

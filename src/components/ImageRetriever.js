@@ -9,6 +9,7 @@ import './ImageRetriever.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from '@mui/material/Tooltip';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const icons = {
   'Automation Factory Model': <FaRobot />,
@@ -191,15 +192,17 @@ const ImageRetriever = () => {
                       <p><strong>Slide :</strong> {result.slide ? result.slide : 'N/A'}</p>
                       <p>
                         {result.source ? (
-                          <Tooltip title={result.source.replace(/\\/g, '/')} arrow>
-                            <button onClick={() => handleDownload(result.source)} className="source-button">
-                              Download
-                            </button>
-                          </Tooltip>
+                           <Tooltip title={result.source.replace(/\\/g, '/')} arrow>
+                           <button onClick={() => handleDownload(result.source)} className="source-button">
+                             <DownloadIcon style={{ marginRight: '8px' }} />
+                             Download
+                           </button>
+                         </Tooltip>
                         ) : (
                           'N/A'
                         )}
                       </p>
+                      <hr></hr>
                     </div>
                   </div>
                 ))}
@@ -211,7 +214,7 @@ const ImageRetriever = () => {
 
       {!results.length && !isLoading && !error && (
         <div className="main-section">
-          <SearchIcon fontSize="large" sx={{ color: '#3f51b5', fontSize: 50, mt: 2, mb: 5 }} />
+          {/* <SearchIcon fontSize="large" sx={{ color: '#3f51b5', fontSize: 50, mt: 2, mb: 5 }} /> */}
           <div className="questions-grid">
             {Object.keys(icons).map((key) => (
               <div

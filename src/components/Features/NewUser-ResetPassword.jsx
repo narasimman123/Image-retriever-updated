@@ -69,7 +69,7 @@ const NewUserResetPassword = () => {
 
   return (
     <div className="login-page">
-      <div className="login-form-container">
+      <div className="login-form-container" style={{ padding: '40px' }}>
         <h2>
           <FontAwesomeIcon icon={faKey} className="heading-icon" /> Reset Password
         </h2>

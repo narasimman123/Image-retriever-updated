@@ -109,7 +109,7 @@
   /* Sidebar */
 .sidebar {
     width: 250px;
-    background-color: #1e2d56;
+    background-color: #1976d2;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -161,6 +161,7 @@
     font-size: 16px; /* Font size */
     letter-spacing: 1.5px; /* Adjust the letter spacing as needed */
     font-weight: bold; /* Make font bold if needed */
+    border-bottom: 1px solid #fff;
 }
 
 .menu-item {
@@ -193,7 +194,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 90vh;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -201,7 +202,7 @@
 /* Center the heading */
 .heading {
   text-align: center;
-  font-size: 3rem;
+  font-size: 2rem;
   margin: 0;
 }
 
@@ -229,7 +230,7 @@
   background-color: #ffffff;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow:2px 6px 9px rgba(0, 0, 0, 0.1);
   text-align: center; /* Center text within card */
   transition: transform 0.2s;
   display: flex;
@@ -256,12 +257,14 @@
 
 /* Chat input styling */
 .chat-input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  flex: 1 1;
+  padding: 14px;
+  border: none;
+  border-radius: 11px;
   margin-right: 10px;
   font-size: 1rem;
+  background-color: #fff;
+  box-shadow: 2px 6px 9px rgba(0, 0, 0, 0.1);
 }
 
 /* Send button styling */
@@ -273,6 +276,7 @@
   border-radius: 50%;
   cursor: pointer;
   font-size: 1.2rem;
+  box-shadow: 2px 6px 9px rgba(0, 0, 0, 0.1);
 }
 
 /* Hover effect for the send button */
@@ -311,4 +315,6 @@
   display: none;
 }
   
-  
+.css-95f9g5-MuiToolbar-root{
+  box-shadow: none!important;
+}

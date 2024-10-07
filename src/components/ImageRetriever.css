@@ -3,7 +3,7 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    height: 100vh; /* Ensure the container takes up the full viewport height */
+    height: 90vh;
     box-sizing: border-box; /* Include padding in the height calculation */
   }
   
@@ -155,10 +155,9 @@
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 500;
-    color: black;
+    color: #fff!important;
     /* background-color: #3f51b5; */
     cursor: pointer;
-    border: 2px solid #3f51b5;
     border-radius: 4px;
     text-decoration: none;
     text-align: center;
