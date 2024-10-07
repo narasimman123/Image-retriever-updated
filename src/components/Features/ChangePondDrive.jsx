@@ -220,7 +220,7 @@ const ChangePondDrive = () => {
   return (
     <Box style={{ padding: '20px' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" gutterBottom>Change Pond Drive</Typography>
+        <Typography variant="h5" gutterBottom>ChangePond Drive</Typography>
         <Button
           variant="contained"
           color="secondary"

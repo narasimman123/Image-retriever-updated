@@ -92,8 +92,8 @@ const Login = ({ setIsAuthenticated }) => {
 
   return (
     <div className="login-container">
-      <div className="left-column">
-        <h2>FIND IT</h2>
+      <div className="left-column" style={{ backgroundImage: 'linear-gradient(135deg, #000000, #0056b3)' }}>
+        <h2>FindIT</h2>
         <h3>Your Ultimate Resource Finder</h3>
         <div className="icons">
           <FontAwesomeIcon icon={faSearch} className="icon" />

@@ -178,46 +178,47 @@ const SiteAccessManagement = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  <Typography variant="body1" color="textSecondary">
-                    No Data Found
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((user, index) => (
-                user.role_id !== 1 && (
-                  <TableRow key={index}>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.status === 1 ? 'Active' : 'Inactive'}</TableCell>
-                    <TableCell>
-                      <Button
-                        color="primary"
-                        onClick={() => handleOpenDialog(user)}
-                        style={{ marginRight: '10px' }}
-                      >
-                        <EditIcon style={{ fontSize: '18px' }} /> Edit
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        color="secondary"
-                        onClick={() => {
-                          setUserToDelete(user);
-                          setConfirmDeleteOpen(true);
-                        }}
-                      >
-                        <DeleteIcon style={{ fontSize: '18px' }} /> Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                )
-              ))
-            )}
-          </TableBody>
+  {users.length === 0 || users.filter(user => user.role_id !== 1).length === 0 ? (
+    <TableRow>
+      <TableCell colSpan={5} align="center">
+        <Typography variant="body1" color="textSecondary">
+          No Data Found
+        </Typography>
+      </TableCell>
+    </TableRow>
+  ) : (
+    users.map((user, index) => (
+      user.role_id !== 1 && (
+        <TableRow key={index}>
+          <TableCell>{user.username}</TableCell>
+          <TableCell>{user.email}</TableCell>
+          <TableCell>{user.status === 1 ? 'Active' : 'Inactive'}</TableCell>
+          <TableCell>
+            <Button
+              color="primary"
+              onClick={() => handleOpenDialog(user)}
+              style={{ marginRight: '10px' }}
+            >
+              <EditIcon style={{ fontSize: '18px' }} /> Edit
+            </Button>
+          </TableCell>
+          <TableCell>
+            <Button
+              color="secondary"
+              onClick={() => {
+                setUserToDelete(user);
+                setConfirmDeleteOpen(true);
+              }}
+            >
+              <DeleteIcon style={{ fontSize: '18px' }} /> Delete
+            </Button>
+          </TableCell>
+        </TableRow>
+      )
+    ))
+  )}
+</TableBody>
+
         </Table>
       </TableContainer>
       

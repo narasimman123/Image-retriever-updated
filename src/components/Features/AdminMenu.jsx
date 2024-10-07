@@ -77,7 +77,7 @@ const AdminMenu = () => {
           {!isCollapsed && (
             <div className="sidebar-menu">
               <Link className={`font_size_13 menu-item ${activeMenu === 0 ? 'active' : ''}`} onClick={() => handleSideMenu(0)}>
-                <DriveFolderUploadIcon /> Change Pond Drive
+                <DriveFolderUploadIcon /> Changepond Drive
               </Link>
               <Link className={`font_size_13 menu-item ${activeMenu === 1 ? 'active' : ''}`} onClick={() => handleSideMenu(1)}>
                 <SettingsIcon /> Access for Site
