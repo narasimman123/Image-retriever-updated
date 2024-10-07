@@ -139,7 +139,7 @@ const ChangePondDrive = () => {
 
   const handleDownload = async (fileName) => {
     try {
-      const response = await fetch(`http://localhost:5000/download-blob?blob_name=${fileName}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/download-blob?blob_name=${fileName}`);
       
       if (!response.ok) {
         throw new Error('Network response was not ok');

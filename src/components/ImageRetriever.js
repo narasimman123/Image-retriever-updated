@@ -131,7 +131,7 @@ const ImageRetriever = () => {
   // Download function
   const handleDownload = async (fileName) => {
     try {
-      const response = await axios.get(`http://localhost:5000/download-blob?blob_name=${fileName}`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/download-blob?blob_name=${fileName}`, {
         responseType: 'blob', // Important to specify the response type as blob
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));

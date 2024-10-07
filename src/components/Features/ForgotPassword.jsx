@@ -23,7 +23,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/users/forgot-password', { email });
+      await axios.post(process.env.REACT_APP_API_URL+'/users/forgot-password', { email });
       setIsModalOpen(true); // Open the modal on success
     } catch (err) {
       setError('Failed to send password reset link. Please try again.');
