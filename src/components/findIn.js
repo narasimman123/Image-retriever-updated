@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaBars, FaSync, FaSignOutAlt } from 'react-icons/fa';
+import { FaSync, FaSignOutAlt } from 'react-icons/fa';
 import { Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom';
 import ImageRetriever from './ImageRetriever';
 import ContentRetriever from './ContentRetriever';
@@ -41,9 +41,9 @@ const FindIn = () => {
     //   navigate('/user/login');
     // }
   }, []);
-  const handleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  // const handleCollapse = () => {
+  //   setIsCollapsed(!isCollapsed);
+  // };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
@@ -85,11 +85,11 @@ const FindIn = () => {
               <Link to="/" className={`menu-item ${isImageActive ? 'active' : ''}`}>
                 Image Retriever
               </Link>
-              <Link to="" className={`menu-item ${isImageActive ? 'active' : ''}`} onClick={handleDemandClick} >
+              {/* <Link to="" className={`menu-item ${isImageActive ? 'active' : ''}`} onClick={handleDemandClick} >
                 <FaSync style={{ marginRight: '8px' }} />
                 {isLoading ? 'Updating...' : 'Demand'}
-                {/* Demand */}
-              </Link>
+                Demand
+              </Link> */}
               <button className="outlined-button logout-btn" onClick={handleLogout}>
                 <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
               </button>

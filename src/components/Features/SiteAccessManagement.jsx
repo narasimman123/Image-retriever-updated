@@ -32,11 +32,12 @@ import { useNavigate } from 'react-router-dom';
 
 // Validation schema
 const validationSchema = Yup.object({
-  username: Yup.string().required('Username is required'),
+  username: Yup.string()
+    .matches(/^[A-Za-z]+$/, 'Username must contain only alphabets')
+    .required('Username is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
 });
 
-// Alert component for Snackbar
 const Alert = React.forwardRef((props, ref) => (
   <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
 ));
@@ -53,24 +54,25 @@ const SiteAccessManagement = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const navigate = useNavigate();
+
   const fetchUsers = async () => {
     try {
       const response = await axios.get(process.env.REACT_APP_API_URL + '/users/list');
-      setUsers(response.data); // Assuming response data is an array of users
+      setUsers(response.data);
     } catch (error) {
       showSnackbar('Error fetching users', 'error');
     }
   };
 
   useEffect(() => {
-    fetchUsers(); // Call the function on component mount
-  }, []); // Empty array means it runs once on mount
+    fetchUsers();
+  }, []);
 
   const handleAddUser = async (values, { resetForm }) => {
     try {
       await axios.post(process.env.REACT_APP_API_URL + '/users/add', values);
       showSnackbar('User added successfully.');
-      fetchUsers(); // Refresh the user list
+      fetchUsers();
       resetForm();
       setOpen(false);
     } catch (error) {
@@ -86,7 +88,7 @@ const SiteAccessManagement = () => {
         status: values.status,
       });
       showSnackbar('User updated successfully.');
-      fetchUsers(); // Refresh the user list
+      fetchUsers();
       resetForm();
       setOpen(false);
       setCurrentUser(null);
@@ -99,7 +101,7 @@ const SiteAccessManagement = () => {
     try {
       await axios.post(process.env.REACT_APP_API_URL + '/users/delete', { email: userToDelete.email });
       showSnackbar('User deleted successfully.');
-      fetchUsers(); // Refresh the user list
+      fetchUsers();
       setConfirmDeleteOpen(false);
       setUserToDelete(null);
     } catch (error) {
@@ -116,11 +118,7 @@ const SiteAccessManagement = () => {
   const handleSort = (key) => {
     const order = sortOrder === 'asc' ? 'desc' : 'asc';
     const sortedUsers = [...users].sort((a, b) => {
-      if (order === 'asc') {
-        return a[key] > b[key] ? 1 : -1;
-      } else {
-        return a[key] < b[key] ? 1 : -1;
-      }
+      return order === 'asc' ? (a[key] > b[key] ? 1 : -1) : (a[key] < b[key] ? 1 : -1);
     });
     setUsers(sortedUsers);
     setSortOrder(order);
@@ -135,20 +133,22 @@ const SiteAccessManagement = () => {
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
     navigate('/admin/login');
   };
+
   return (
     <Box style={{ padding: '20px' }}>
-       <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" gutterBottom>Site Access Management</Typography>
         <Button
           variant="contained"
           color="secondary"
           startIcon={<LogoutIcon />}
-          onClick={() => handleLogout()}
+          onClick={handleLogout}
         >
           Logout
         </Button>
@@ -162,7 +162,7 @@ const SiteAccessManagement = () => {
         Add User
       </Button>
 
-      <TableContainer component={Paper} style={{ padding: '1%' ,width:'99%'}}>
+      <TableContainer component={Paper} style={{ padding: '1%', width: '99%' }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -178,9 +178,17 @@ const SiteAccessManagement = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user, index) => (
-              <>
-                {user.role_id != 1 &&
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  <Typography variant="body1" color="textSecondary">
+                    No Data Found
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user, index) => (
+                user.role_id !== 1 && (
                   <TableRow key={index}>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
@@ -202,13 +210,13 @@ const SiteAccessManagement = () => {
                           setConfirmDeleteOpen(true);
                         }}
                       >
-                        <DeleteIcon style={{ fontSize: '18px' }} />  Delete
+                        <DeleteIcon style={{ fontSize: '18px' }} /> Delete
                       </Button>
                     </TableCell>
                   </TableRow>
-                }
-              </>
-            ))}
+                )
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -220,13 +228,13 @@ const SiteAccessManagement = () => {
             initialValues={{
               username: editMode && currentUser ? currentUser.username : '',
               email: editMode && currentUser ? currentUser.email : '',
-              status: editMode && currentUser ? currentUser.status : 'Active', // Default status
+              status: editMode && currentUser ? currentUser.status : '1', // Default status for editing
             }}
             validationSchema={validationSchema}
             onSubmit={editMode ? handleEditUser : handleAddUser}
           >
             {({ errors, touched, setFieldValue }) => (
-              <Form><br></br>
+              <Form>
                 <Box mb={2}>
                   <Field
                     as={TextField}
@@ -242,26 +250,28 @@ const SiteAccessManagement = () => {
                     as={TextField}
                     name="email"
                     label="Email"
-                    fullWidth disabled={editMode}
+                    fullWidth 
+                    disabled={editMode}
                     error={touched.email && Boolean(errors.email)}
                     helperText={touched.email && errors.email}
                   />
                 </Box>
-                <Box mb={2}>
-                <InputLabel>Status</InputLabel>
-                  <FormControl fullWidth>
-                    
-                    <Field
-                      as={Select}
-                      name="status"
-                      onChange={(event) => setFieldValue("status", event.target.value)}
-                      error={touched.status && Boolean(errors.status)}
-                    >
-                      <MenuItem value="1">Active</MenuItem>
-                      <MenuItem value="0">Inactive</MenuItem>
-                    </Field>
-                  </FormControl>
-                </Box>
+                {editMode && (
+                  <Box mb={2}>
+                    <InputLabel>Status</InputLabel>
+                    <FormControl fullWidth>
+                      <Field
+                        as={Select}
+                        name="status"
+                        onChange={(event) => setFieldValue("status", event.target.value)}
+                        error={touched.status && Boolean(errors.status)}
+                      >
+                        <MenuItem value="1">Active</MenuItem>
+                        <MenuItem value="0">Inactive</MenuItem>
+                      </Field>
+                    </FormControl>
+                  </Box>
+                )}
                 <DialogActions>
                   <Button onClick={() => setOpen(false)} color="primary">
                     Cancel
@@ -276,7 +286,6 @@ const SiteAccessManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Confirmation Dialog for Deletion */}
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>

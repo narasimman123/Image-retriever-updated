@@ -79,7 +79,6 @@
 /* Button with deep blue color and interactive effects */
 .login-form-container button {
   padding: 12px;
- 
   border: none;
   border-radius: 6px;
   color: white;
@@ -87,23 +86,114 @@
   cursor: pointer;
   font-weight: bold;
   transition: background 0.3s, transform 0.2s;
-  background: linear-gradient(135deg, #a2c2e0, #e0f0ff); /* Gradient background for button */
+  background: linear-gradient(135deg, #007bff, #0056b3); 
+  width: 50%;
+  text-align: center;
+  margin: 0px auto;
 }
 
 .login-form-container button:hover {
-  background-color: #162144; /* Slightly darker on hover */
-  transform: translateY(-2px); /* Slight lift on hover */
+  transform: translateY(-5px) scale(1.05); /* Bounce effect on hover */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
 .login-form-container button:active {
-  transform: translateY(0); /* Reset effect on click */
+  transform: translateY(2px) scale(1); /* Slightly lower on click */
 }
 
-.login-form-container button:hover {
-  background: linear-gradient(135deg, #67a9d2, #82c0f9); /* Slightly darker gradient on hover */
-}
 
 .button-icon {
   margin-left: 8px; /* Adjust this value to increase or decrease the space */
 }
 
+/* new changes */
+.login-container {
+  display: flex;
+  height: 100vh;
+}
+
+.left-column {
+  flex: 6;
+  background-image: linear-gradient(135deg, #007bff, #0056b3); /* Gradient from #007bff to #0056b3 */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.left-column h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0;
+}
+
+.icons {
+  display: flex;
+  justify-content: center;
+}
+
+.icon {
+  font-size: 1.5rem;
+  margin: 0 15px;
+  color: white;
+}
+
+.right-column {
+  flex: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa; /* Light background for right column */
+}
+
+.login-form-container {
+  background-color: white;
+  padding: 6%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px; /* Maximum width for the login form */
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.input-icon {
+  margin-right: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #007bff; /* Change border color on focus */
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%; /* Full width button */
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}

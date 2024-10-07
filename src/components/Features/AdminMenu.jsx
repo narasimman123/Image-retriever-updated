@@ -26,9 +26,9 @@ const AdminMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  // const handleCollapse = () => {
+  //   setIsCollapsed(!isCollapsed);
+  // };
 
   const handleSideMenu = (data) => {
     setSidemenuHide(data);

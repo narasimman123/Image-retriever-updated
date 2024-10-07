@@ -38,7 +38,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="login-page">
-      <div className="login-form-container">
+      <div className="login-form-container" style={{ padding: '40px' }}>
         <h2>
           <FontAwesomeIcon icon={faEnvelope} className="heading-icon" /> Forgot Password
         </h2>

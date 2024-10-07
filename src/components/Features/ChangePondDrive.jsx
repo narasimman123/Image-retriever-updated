@@ -46,6 +46,7 @@ const ChangePondDrive = () => {
   const [searchTerm, setSearchTerm] = useState(''); // For search functionality
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // For delete confirmation dialog
   const navigate = useNavigate();
+
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -209,11 +210,13 @@ const ChangePondDrive = () => {
   useEffect(() => {
     fetchFiles();
   }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
     navigate('/admin/login');
   };
+
   return (
     <Box style={{ padding: '20px' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -295,29 +298,39 @@ const ChangePondDrive = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredRows.map((row) => (
-                <TableRow key={row.name}>
-                  <TableCell>
-                    <LocalParkingIcon className="pptx_icons" /> &nbsp;
-                    {row.name}
-                  </TableCell>
-                  <TableCell>{row.modified_date}</TableCell>
-                  <TableCell>{row.size}</TableCell>
-                  <TableCell align="center">
-                    <IconButton onClick={(event) => handleClick(event, row)}>
-                      <MoreVertIcon />
-                    </IconButton>
-                    <Menu
-                      anchorEl={anchorEl}
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                    >
-                      <MenuItem onClick={() => handleMenuItemClick('download')}>Download</MenuItem>
-                      <MenuItem onClick={() => handleMenuItemClick('delete')}>Delete</MenuItem>
-                    </Menu>
+              {filteredRows.length > 0 ? (
+                filteredRows.map((row) => (
+                  <TableRow key={row.name}>
+                    <TableCell>
+                      <LocalParkingIcon className="pptx_icons" /> &nbsp;
+                      {row.name}
+                    </TableCell>
+                    <TableCell>{row.modified_date}</TableCell>
+                    <TableCell>{row.size}</TableCell>
+                    <TableCell align="center">
+                      <IconButton onClick={(event) => handleClick(event, row)}>
+                        <MoreVertIcon />
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                      >
+                        <MenuItem onClick={() => handleMenuItemClick('download')}>Download</MenuItem>
+                        <MenuItem onClick={() => handleMenuItemClick('delete')}>Delete</MenuItem>
+                      </Menu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    <Typography variant="body1" color="textSecondary">
+                      No Data Found
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>

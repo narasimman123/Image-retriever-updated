@@ -18,9 +18,8 @@ const UserLogin = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // const authStatus = localStorage.getItem('isAuthenticated') === 'true';
     const userData = localStorage.getItem('user');
-    if(userData) {
+    if (userData) {
       const user = JSON.parse(userData);
       if (user.role_id === 1) {
         navigate('/admin/dashboard');
@@ -46,30 +45,20 @@ const UserLogin = ({ setIsAuthenticated }) => {
       });
 
       const data = await response.json();
-      console.log(response)
-      if (response.status===200) {
+
+      if (response.status === 200) {
         const { user } = data;
 
-        // Check user status and role
         if (user.status === 1) {
-          // setIsAuthenticated(true);
-          // Store user data in localStorage
           localStorage.setItem('isAuthenticated', 'true');
-          localStorage.setItem('user', JSON.stringify(user)); // Store user data
+          localStorage.setItem('user', JSON.stringify(user));
           window.location.reload();
-          // if (user.role_id === 1) {
-          //   navigate('/admin/dashboard');
-          //   window.location.reload();
-          // } else if (user.role_id === 2) {
-          //   navigate('/user/dashboard');
-          //   window.location.reload();
-          // }
         } else {
           setError('User is not active');
           setSnackbarOpen(true);
         }
       } else {
-        setError(data.message || 'Login failed');
+        setError(data.message ||data.error || 'Login failed');
         setSnackbarOpen(true);
       }
     } catch (err) {
@@ -81,18 +70,17 @@ const UserLogin = ({ setIsAuthenticated }) => {
   const handleUsernameChange = (e) => {
     const inputUsername = e.target.value;
     setUsername(inputUsername);
-    
-    // Validate that the username ends with @mailinator.com
+
     if (inputUsername && !inputUsername.endsWith('@mailinator.com')) {
       setError('Username must end with @mailinator.com');
     } else {
-      if (error) setError(''); // Clear error if it was previously set
+      if (error) setError('');
     }
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    if (error) setError(''); // Clear error if it was previously set
+    if (error) setError('');
   };
 
   const handleCloseSnackbar = () => {
@@ -100,37 +88,48 @@ const UserLogin = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-form-container">
-        <h2><FontAwesomeIcon icon={faKey} className="heading-icon" /> User Login</h2>
-        <form onSubmit={handleLogin}>
-          <div className="input-group">
-            <FontAwesomeIcon icon={faUser} className="input-icon" />
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={handleUsernameChange}
-            />
-          </div>
-          <div className="input-group">
-            <FontAwesomeIcon icon={faLock} className="input-icon" />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={handlePasswordChange}
-            />
-          </div>
-          {error && <p className="error-message">{error}</p>}
-          <Link to="/user/forgot-password" className="forgot-password-link">Forgot Password?</Link>
-          <br></br>
-          <button type="submit" disabled={!username.endsWith('@mailinator.com')}> {/* Disable button if username is invalid */}
-            Login <FontAwesomeIcon className="button-icon" icon={faSignInAlt} />
-          </button>
-        </form>
+    <div className="login-container">
+      <div className="left-column">
+        <h2>FIND IT</h2>
+        <h3>Your Ultimate Resource Finder</h3>
+        <div className="icons">
+          <FontAwesomeIcon icon={faUser} className="icon" />
+          <FontAwesomeIcon icon={faLock} className="icon" />
+          <FontAwesomeIcon icon={faKey} className="icon" />
+        </div>
       </div>
-      
+      <div className="right-column">
+        <div className="login-form-container">
+          <h2><FontAwesomeIcon icon={faKey} className="heading-icon" /> User Login</h2>
+          <form onSubmit={handleLogin}>
+            <div className="input-group">
+              <FontAwesomeIcon icon={faUser} className="input-icon" />
+              <input
+                type="text"
+                placeholder="Email"
+                value={username}
+                onChange={handleUsernameChange}
+              />
+            </div>
+            <div className="input-group">
+              <FontAwesomeIcon icon={faLock} className="input-icon" />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={handlePasswordChange}
+              />
+            </div>
+            {error && <p className="error-message">{error}</p>}
+            <Link to="/user/forgot-password" className="forgot-password-link">Forgot Password?</Link>
+            <br></br>
+            <button type="submit" disabled={!username.endsWith('@mailinator.com')}>
+              Login <FontAwesomeIcon className="button-icon" icon={faSignInAlt} />
+            </button>
+          </form>
+        </div>
+      </div>
+
       {/* Snackbar for error messages */}
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
