@@ -543,7 +543,7 @@ const handleRootClick =()=>{
                       onClick={() => handleFolderClick(folder)}
                     >
                       <TableCell>
-                        <CreateNewFolderIcon style={{ marginRight: '8px' }} />
+                        <CreateNewFolderIcon style={{ marginRight: '8px',color:'#eba119' }} />
                         {folder}
                       </TableCell>
                       <TableCell colSpan={3}></TableCell>

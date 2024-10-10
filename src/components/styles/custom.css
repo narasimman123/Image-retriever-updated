@@ -85,3 +85,22 @@
   }
   /* end reset password */
 
+    .css-1dtoofl-MuiPaper-root {
+      height: 70vh;
+    }
+  
+    .css-1dtoofl-MuiPaper-root::-webkit-scrollbar {
+      width: 5px;
+    }
+  
+    .css-1dtoofl-MuiPaper-root::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+  
+    .css-1dtoofl-MuiPaper-root::-webkit-scrollbar-thumb {
+      background: #888;
+    }
+  
+    .css-1dtoofl-MuiPaper-root::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
