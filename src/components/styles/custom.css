@@ -87,6 +87,7 @@
 
     .css-1dtoofl-MuiPaper-root {
       height: 70vh!important;
+      overflow: auto;
     }
   
     .css-1dtoofl-MuiPaper-root::-webkit-scrollbar {
