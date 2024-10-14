@@ -29,15 +29,13 @@ import {
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import LogoutIcon from '@mui/icons-material/Logout';
 import '../styles/custom.css';
 import { useNavigate } from 'react-router-dom';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-
+import FilePresentIcon from '@mui/icons-material/FilePresent';
 const ChangePondDrive = () => {
   const [rows, setRows] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -51,6 +49,7 @@ const ChangePondDrive = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [folderDeleteDialogOpen,setFolderDeleteDialogOpen] =  useState({});
   const [uploadMenuAnchorEl, setUploadMenuAnchorEl] = useState(null);
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -73,49 +72,33 @@ const ChangePondDrive = () => {
 
   const fetchFiles = async (folder = '') => {
     try {
-      // const response = await fetch(
-      //   `${process.env.REACT_APP_API_URL}/list-blobs?path=${currentPath}`
-      // );
-      setLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/list-all-blobs?folder=${folder}`);
-      const data = await response.json();
-      if (data.blobs) {
-        const uniqueFolders = new Set();
-        const fileList = [];
-        if(!folder){
-          data.blobs.forEach((blob) => {
-            const pathParts = blob.name.split('/');
-            if (pathParts.length > 1) {
-              uniqueFolders.add(pathParts[0]);
-            } else {
-              fileList.push(blob);
-            }
-          });
-        }else {
-          data.blobs.forEach((blob) => {
-            const pathParts = blob.name.split('/');
-            if (pathParts[0] === folder) {
-              fileList.push({
-                name: pathParts[pathParts.length - 1],
-                modified_date:blob.modified_date,
-                size:blob.size,
-                type:blob.type,
-                path:blob.path
-              });
-            }
-          });
+        setLoading(true);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/list-all-blobs?folder=${folder}`);
+        const data = await response.json();
+        if (data.blobs) {
+            const uniqueFolders = data.blobs.folders.map(blob => ({
+                name: blob.name,
+                type: "folder",
+                files:blob.files
+            }));
+            const fileList = data.blobs.root_files.map(blob => ({
+                ...blob,
+                type: "file"
+            }));
+            // Combine files and folders
+            const output = [...fileList, ...uniqueFolders];
+            console.log(JSON.stringify(output)); // Check the output here
+            setLoading(false);
+            setFolders(uniqueFolders); // Set unique folders
+            setFiles(fileList); // Set files
+            setRows(output); // Keep rows for sorting and searching
         }
-        setLoading(false);
-        setFolders(Array.from(uniqueFolders));
-        setFiles(fileList);
-        setRows(fileList); // Keeping rows for sorting and searching
-      }
     } catch (error) {
-      setSnackbarMessage('Failed to fetch files.');
-      setSnackbarOpen(true);
-      setLoading(false);
+        setSnackbarMessage('Failed to fetch files.');
+        setSnackbarOpen(true);
+        setLoading(false);
     }
-  };
+};
 
   const handleFileChangeAndUpload = async (event) => {
     const selectedFiles = Array.from(event.target.files);
@@ -178,17 +161,17 @@ const ChangePondDrive = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/delete-blob`,
+        `${process.env.REACT_APP_API_URL}/delete-blobs`,
         {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            blob_names: currentPath
+            blob_names: [currentPath
               ? `${currentPath}/${fileName}`
               : fileName,
-          }),
+          ]}),
         }
       );
 
@@ -207,7 +190,42 @@ const ChangePondDrive = () => {
       setLoading(false);
     }
   };
+  const handleFolderDelete = async (fileNames) =>{
+    console.log(JSON.stringify(fileNames))
+    setLoading(true);
+    const blobNames = fileNames.fileData.files.map(file => `${fileNames.fileData.name}/${file.name}`);
 
+    const payload = JSON.stringify({
+        blob_names: blobNames
+    });
+    console.log("payload",payload)
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/delete-blobs`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: payload,
+        }
+      );
+
+      if (response.ok) {
+        setSnackbarMessage(`Successfully deleted: ${fileNames.fileData.nam||""}`);
+        setSnackbarOpen(true);
+        await fetchFiles();
+      } else {
+        setSnackbarMessage('Failed to delete file.');
+        setSnackbarOpen(true);
+      }
+      setLoading(false);
+    } catch (error) {
+      setSnackbarMessage('Error deleting file.');
+      setSnackbarOpen(true);
+      setLoading(false);
+    }
+  }
   const handleDownload = async (fileName) => {
     setLoading(true);
     try {
@@ -260,11 +278,13 @@ const ChangePondDrive = () => {
     setAnchorEl(null);
   };
 
-  const handleMenuItemClick = (action) => {
+  const handleMenuItemClick = (action,data='') => {
     if (action === 'delete') {
       setDeleteDialogOpen(true);
     } else if (action === 'download') {
       handleDownload(selectedFile.name);
+    } else if (action === 'folderDelete'){
+      setFolderDeleteDialogOpen({"showHide":true,fileData : data});
     }
     handleClose();
   };
@@ -279,13 +299,18 @@ const ChangePondDrive = () => {
 
   const handleDeleteDialogClose = () => {
     setDeleteDialogOpen(false);
+    setFolderDeleteDialogOpen(folderDeleteDialogOpen.showHide=false);
   };
 
   const confirmDelete = () => {
     handleDelete(selectedFile.name);
     setDeleteDialogOpen(false);
   };
-
+  const confirmFolderDelete =()=>{
+    console.log(folderDeleteDialogOpen)
+    handleFolderDelete (folderDeleteDialogOpen);
+    setFolderDeleteDialogOpen(folderDeleteDialogOpen.showHide=false);
+  }
   useEffect(() => {
     fetchFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -299,8 +324,14 @@ const ChangePondDrive = () => {
 
   const handleFolderClick = (folderName) => {
     setCurrentPath('')
-    setCurrentPath(currentPath ? `${currentPath}/${folderName}` : folderName);
-    fetchFiles(folderName);
+    setCurrentPath(currentPath ? `${currentPath}/${folderName.name}` : folderName.name);
+    setLoading(true);
+    const fileList = folderName.files.map(blob => ({
+      ...blob,
+      type: "file"
+    }));
+    setRows(fileList);
+    setLoading(false);
   };
 
   const handleBreadcrumbClick = (index) => {
@@ -533,50 +564,71 @@ const handleRootClick =()=>{
                   </TableCell>
                 </TableRow>
               )}
-              {folders.length > 0 && (
-                <>
-                  {folders.map((folder) => (
-                    <TableRow
-                      key={folder}
-                      hover
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleFolderClick(folder)}
-                    >
-                      <TableCell>
-                        <CreateNewFolderIcon style={{ marginRight: '8px',color:'#eba119' }} />
-                        {folder}
-                      </TableCell>
-                      <TableCell colSpan={3}></TableCell>
-                    </TableRow>
-                  ))}
-                </>
-              )}
-              {filteredFiles.length > 0 ? (
-                filteredFiles.map((file) => (
-                  <TableRow key={file.name}>
+              {rows.length > 0 ? (
+                rows.map(item => (
+                  <TableRow
+                    key={item.name}
+                    hover
+                    style={{ cursor: item.type === 'folder' ? 'pointer' : 'default' }}
+                  >
                     <TableCell>
-                      <LocalParkingIcon className="pptx_icons" /> &nbsp;
-                      {file.name}
+                      {item.type === 'folder' ? (
+                        <>
+                        <span onClick={item.type === 'folder' ? () => handleFolderClick(item) : undefined}>
+                          <CreateNewFolderIcon className='customFolderIcon'/>
+                          &nbsp;{item.name}
+                        </span>
+                        </>
+                      ) : (
+                        <>
+                          <FilePresentIcon className="pptx_icons" /> &nbsp;
+                          {item.name}
+                        </>
+                      )}
                     </TableCell>
-                    <TableCell>{file.modified_date}</TableCell>
-                    <TableCell>{file.size}</TableCell>
-                    <TableCell align="center">
-                      <IconButton onClick={(event) => handleClick(event, file)}>
-                        <MoreVertIcon />
-                      </IconButton>
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl) && selectedFile?.name === file.name}
-                        onClose={handleClose}
-                      >
-                        <MenuItem onClick={() => handleMenuItemClick('download')}>
-                          Download
-                        </MenuItem>
-                        <MenuItem onClick={() => handleMenuItemClick('delete')}>
-                          Delete
-                        </MenuItem>
-                      </Menu>
-                    </TableCell>
+                    {item.type === 'file' && (
+                      <>
+                        <TableCell>{item.modified_date}</TableCell>
+                        <TableCell>{item.size}</TableCell>
+                        <TableCell align="center">
+                          <IconButton onClick={(event) => handleClick(event, item)}>
+                            <MoreVertIcon />
+                          </IconButton>
+                          <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl) && selectedFile?.name === item.name}
+                            onClose={handleClose}
+                          >
+                            <MenuItem onClick={() => handleMenuItemClick('download')}>
+                              Download
+                            </MenuItem>
+                            <MenuItem onClick={() => handleMenuItemClick('delete', item.name)}>
+                              Delete
+                            </MenuItem>
+                          </Menu>
+                        </TableCell>
+                      </>
+                    )}
+                    {item.type === 'folder' && (
+                      <>
+                      <TableCell>-</TableCell>
+                      <TableCell>-</TableCell>
+                      <TableCell align="center">
+                        <IconButton onClick={(event) => handleClick(event, item)}>
+                          <MoreVertIcon />
+                        </IconButton>
+                        <Menu
+                          anchorEl={anchorEl}
+                          open={Boolean(anchorEl) && selectedFile?.name === item.name}
+                          onClose={handleClose}
+                        >
+                          <MenuItem onClick={() => handleMenuItemClick('folderDelete', item)}>
+                            Delete
+                          </MenuItem>
+                        </Menu>
+                      </TableCell>
+                      </>
+                    )}
                   </TableRow>
                 ))
               ) : (
@@ -641,7 +693,26 @@ const handleRootClick =()=>{
           </Button>
         </DialogActions>
       </Dialog>
-
+      {/* end delete file confirmation */}
+      {/*  Start folder delete confirmation */}
+      <Dialog open={folderDeleteDialogOpen.showHide} onClose={handleDeleteDialogClose}>
+        <DialogTitle>Delete Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Do you want to delete{' '}
+            {selectedFile ? selectedFile.name : ''}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteDialogClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmFolderDelete} color="secondary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* end folder confirmation */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

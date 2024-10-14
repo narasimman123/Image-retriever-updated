@@ -86,7 +86,7 @@
   /* end reset password */
 
     .css-1dtoofl-MuiPaper-root {
-      height: 70vh;
+      height: 70vh!important;
     }
   
     .css-1dtoofl-MuiPaper-root::-webkit-scrollbar {
@@ -104,3 +104,8 @@
     .css-1dtoofl-MuiPaper-root::-webkit-scrollbar-thumb:hover {
       background: #555;
     }
+.customFolderIcon {
+  margin-right: 9px;
+  color: #eba119;
+  height: 25px !important;
+}
