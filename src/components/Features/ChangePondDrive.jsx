@@ -75,7 +75,7 @@ const ChangePondDrive = () => {
         setLoading(true);
         const response = await fetch(`${process.env.REACT_APP_API_URL}/list-all-blobs?folder=${folder}`);
         const data = await response.json();
-        if (data.blobs) {
+                if (data.blobs) {
             const uniqueFolders = data.blobs.folders.map(blob => ({
                 name: blob.name,
                 type: "folder",
@@ -85,14 +85,14 @@ const ChangePondDrive = () => {
                 ...blob,
                 type: "file"
             }));
-            // Combine files and folders
+// Combine files and folders
             const output = [...fileList, ...uniqueFolders];
-            console.log(JSON.stringify(output)); // Check the output here
+console.log(JSON.stringify(output)); // Check the output here
             setLoading(false);
-            setFolders(uniqueFolders); // Set unique folders
+            setFolders(uniqueFolders); // Set unique folders 
             setFiles(fileList); // Set files
             setRows(output); // Keep rows for sorting and searching
-        }
+      }
     } catch (error) {
         setSnackbarMessage('Failed to fetch files.');
         setSnackbarOpen(true);
@@ -128,11 +128,12 @@ const ChangePondDrive = () => {
     const formData = new FormData();
     selectedFiles.forEach((file) => {
       formData.append('file', file);
+      formData.append('folder',currentPath)
     });
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/upload-blob?path=${currentPath}`,
+        `${process.env.REACT_APP_API_URL}/upload-blob`,
         {
           method: 'POST',
           body: formData,
@@ -144,7 +145,11 @@ const ChangePondDrive = () => {
         setSnackbarOpen(true);
         setUploadedFiles([]);
         setLoading(false);
+        if(!currentPath){
         await fetchFiles();
+        }else {
+          handleFolderClick(currentPath)
+        }
       } else {
         setSnackbarMessage('Failed to upload files.');
         setSnackbarOpen(true);
@@ -168,7 +173,7 @@ const ChangePondDrive = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            blob_names: [currentPath
+            paths: [currentPath
               ? `${currentPath}/${fileName}`
               : fileName,
           ]}),
@@ -178,7 +183,7 @@ const ChangePondDrive = () => {
       if (response.ok) {
         setSnackbarMessage(`Successfully deleted: ${fileName}`);
         setSnackbarOpen(true);
-        await fetchFiles();
+        await handleFolderClick(currentPath);
       } else {
         setSnackbarMessage('Failed to delete file.');
         setSnackbarOpen(true);
@@ -196,9 +201,8 @@ const ChangePondDrive = () => {
     const blobNames = fileNames.fileData.files.map(file => `${fileNames.fileData.name}/${file.name}`);
 
     const payload = JSON.stringify({
-        blob_names: blobNames
+        paths: blobNames
     });
-    console.log("payload",payload)
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/delete-blobs`,
@@ -232,7 +236,7 @@ const ChangePondDrive = () => {
       const blobName = currentPath ? `${currentPath}/${fileName}` : fileName;
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/download-blob?blob_name=${encodeURIComponent(
-          blobName
+          fileName
         )}`
       );
 
@@ -282,7 +286,7 @@ const ChangePondDrive = () => {
     if (action === 'delete') {
       setDeleteDialogOpen(true);
     } else if (action === 'download') {
-      handleDownload(selectedFile.name);
+      handleDownload(data);
     } else if (action === 'folderDelete'){
       setFolderDeleteDialogOpen({"showHide":true,fileData : data});
     }
@@ -322,16 +326,57 @@ const ChangePondDrive = () => {
     navigate('/admin/login');
   };
 
-  const handleFolderClick = (folderName) => {
-    setCurrentPath('')
-    setCurrentPath(currentPath ? `${currentPath}/${folderName.name}` : folderName.name);
+  const handleFolderClick = async (folderName = '') => {
+    if(!currentPath){
+    setCurrentPath('');
+    const newPath = currentPath ? `${currentPath}/${folderName.name}` : folderName.name;
+    setCurrentPath(newPath);
+    }
     setLoading(true);
-    const fileList = folderName.files.map(blob => ({
-      ...blob,
-      type: "file"
-    }));
-    setRows(fileList);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/list-blobs-folder`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ "folder": folderName.name||folderName }),
+        }
+      );
+      const data = await response.json();
+      setLoading(false);
+      if (data && data.files.length > 0) {
+        const fileList = data.files.map(blob => ({
+          ...blob,
+          type: "file"
+        }));
+        setLoading(false);
+        setFiles(fileList);
+        setRows(fileList);
+      } else {
+        setRows([]);
+      }
+    } catch (error) {
+      setSnackbarMessage('Failed to fetch files.');
+      setSnackbarOpen(true);
+      setLoading(false);
+    }
+    // // Create or update the query parameter for folderName
+    // const params = new URLSearchParams(window.location.search);
+    // params.set('folderName', newPath); // Set the folderName query param
+
+    // // Update the URL with the new query parameters
+    // navigate(`?${params.toString()}`, { replace: true });
+
+    // const fileList = folderName.files.map(blob => ({
+    //     ...blob,
+    //     type: "file"
+    // }));
+
+    // setRows(fileList);
+    // setLoading(false);
   };
 
   const handleBreadcrumbClick = (index) => {
@@ -405,7 +450,7 @@ const ChangePondDrive = () => {
 const handleRootClick =()=>{
   setCurrentPath('');
   fetchFiles();
-}
+  }
   return (
     <Box style={{ padding: '20px' }}>
        {loading && (
@@ -495,10 +540,11 @@ const handleRootClick =()=>{
               <UploadFileIcon style={{ marginRight: '8px' }} />
               File Upload
             </MenuItem>
-            <MenuItem onClick={handleFolderUploadClick}>
+            {!currentPath && <MenuItem onClick={handleFolderUploadClick}>
               <CreateNewFolderIcon style={{ marginRight: '8px' }} />
               Create Folder
             </MenuItem>
+            }
           </Menu>
           <input
             id="file-upload-input"
@@ -599,7 +645,7 @@ const handleRootClick =()=>{
                             open={Boolean(anchorEl) && selectedFile?.name === item.name}
                             onClose={handleClose}
                           >
-                            <MenuItem onClick={() => handleMenuItemClick('download')}>
+                            <MenuItem onClick={() => handleMenuItemClick('download',item.name)}>
                               Download
                             </MenuItem>
                             <MenuItem onClick={() => handleMenuItemClick('delete', item.name)}>

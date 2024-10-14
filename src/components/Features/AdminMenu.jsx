@@ -33,6 +33,7 @@ const AdminMenu = () => {
   const handleSideMenu = (data) => {
     setSidemenuHide(data);
     setActiveMenu(data);
+    window.location.reload();
   };
 
   const handleLogout = () => {
