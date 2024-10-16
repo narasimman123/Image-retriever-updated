@@ -50,6 +50,7 @@ const ChangePondDrive = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [folderDeleteDialogOpen,setFolderDeleteDialogOpen] =  useState({});
+  const [folderDeleteShowHide,setFolderDeleteShowHide] =  useState(false);
   const [uploadMenuAnchorEl, setUploadMenuAnchorEl] = useState(null);
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -291,6 +292,7 @@ console.log(JSON.stringify(output)); // Check the output here
       handleDownload(data);
     } else if (action === 'folderDelete'){
       setFolderDeleteDialogOpen({"showHide":true,fileData : data});
+      setFolderDeleteShowHide(true)
     }
     handleClose();
   };
@@ -306,6 +308,7 @@ console.log(JSON.stringify(output)); // Check the output here
   const handleDeleteDialogClose = () => {
     setDeleteDialogOpen(false);
     setFolderDeleteDialogOpen(folderDeleteDialogOpen.showHide=false);
+    setFolderDeleteShowHide(false);
   };
 
   const confirmDelete = () => {
@@ -316,6 +319,7 @@ console.log(JSON.stringify(output)); // Check the output here
     console.log(folderDeleteDialogOpen)
     handleFolderDelete (folderDeleteDialogOpen);
     setFolderDeleteDialogOpen(folderDeleteDialogOpen.showHide=false);
+    setFolderDeleteShowHide(false)
   }
   useEffect(() => {
     fetchFiles();
@@ -747,7 +751,7 @@ const handleRootClick =()=>{
       </Dialog>
       {/* end delete file confirmation */}
       {/*  Start folder delete confirmation */}
-      <Dialog open={folderDeleteDialogOpen.showHide?true:false} onClose={handleDeleteDialogClose}>
+      <Dialog open={folderDeleteShowHide} onClose={handleDeleteDialogClose}>
         <DialogTitle>Delete Confirmation</DialogTitle>
         <DialogContent>
           <DialogContentText>
