@@ -18,8 +18,8 @@ const FindIn = () => {
   const [isLoading, setIsLoading] = useState(false); // State to track loading
 
   useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    const userData = localStorage.getItem('user');
+    const authStatus = sessionStorage.getItem('isAuthenticated') === 'true';
+    const userData = sessionStorage.getItem('user');
     const user = JSON.parse(userData);
     if (authStatus) {
       setIsAuthenticated(true);
@@ -36,8 +36,8 @@ const FindIn = () => {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('user');
     navigate('/user/login');
   };
 

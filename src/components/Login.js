@@ -18,8 +18,8 @@ const Login = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    const userData = localStorage.getItem('user');
+    const authStatus = sessionStorage.getItem('isAuthenticated') === 'true';
+    const userData = sessionStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
       if (user.role_id === 1) {
@@ -52,8 +52,8 @@ const Login = ({ setIsAuthenticated }) => {
 
         if (user.status === 1) {
           setIsAuthenticated(true);
-          localStorage.setItem('isAuthenticated', 'true');
-          localStorage.setItem('user', JSON.stringify(user));
+          sessionStorage.setItem('isAuthenticated', 'true');
+          sessionStorage.setItem('user', JSON.stringify(user));
 
           if (user.role_id === 1) {
             navigate('/admin/dashboard');

@@ -18,7 +18,7 @@ const UserLogin = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
+    const userData = sessionStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
       if (user.role_id === 1) {
@@ -50,8 +50,8 @@ const UserLogin = ({ setIsAuthenticated }) => {
         const { user } = data;
 
         if (user.status === 1) {
-          localStorage.setItem('isAuthenticated', 'true');
-          localStorage.setItem('user', JSON.stringify(user));
+          sessionStorage.setItem('isAuthenticated', 'true');
+          sessionStorage.setItem('user', JSON.stringify(user));
           window.location.reload();
         } else {
           setError('User is not active');

@@ -183,7 +183,11 @@ console.log(JSON.stringify(output)); // Check the output here
       if (response.ok) {
         setSnackbarMessage(`Successfully deleted: ${fileName}`);
         setSnackbarOpen(true);
-        await handleFolderClick(currentPath);
+        if (currentPath) {
+          await handleFolderClick(currentPath);
+        } else {
+          await fetchFiles();
+        }
       } else {
         setSnackbarMessage('Failed to delete file.');
         setSnackbarOpen(true);
@@ -196,10 +200,8 @@ console.log(JSON.stringify(output)); // Check the output here
     }
   };
   const handleFolderDelete = async (fileNames) =>{
-    console.log(JSON.stringify(fileNames))
     setLoading(true);
-    const blobNames = fileNames.fileData.files.map(file => `${fileNames.fileData.name}/${file.name}`);
-
+    const blobNames = fileNames.fileData.files.length>0?fileNames.fileData.files.map(file => `${fileNames.fileData.name}/${file.name}`):[fileNames.fileData.name+'/'];
     const payload = JSON.stringify({
         paths: blobNames
     });
@@ -236,7 +238,7 @@ console.log(JSON.stringify(output)); // Check the output here
       const blobName = currentPath ? `${currentPath}/${fileName}` : fileName;
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/download-blob?blob_name=${encodeURIComponent(
-          fileName
+          blobName
         )}`
       );
 
@@ -321,8 +323,8 @@ console.log(JSON.stringify(output)); // Check the output here
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('user');
     navigate('/admin/login');
   };
 
@@ -430,7 +432,6 @@ console.log(JSON.stringify(output)); // Check the output here
           body: JSON.stringify(payload),
         }
       );
-
       if (response.ok) {
         setSnackbarMessage('Folder created successfully.');
         setSnackbarOpen(true);
@@ -439,12 +440,15 @@ console.log(JSON.stringify(output)); // Check the output here
         setLoading(false);
         await fetchFiles();
       } else {
-        setSnackbarMessage('Failed to create folder.');
+        const errorData = await response.json();
+        setSnackbarMessage(errorData.error || 'Failed to create folder.');
         setSnackbarOpen(true);
+        setLoading(false);
       }
     } catch (error) {
       setSnackbarMessage('Error creating folder.');
       setSnackbarOpen(true);
+      setLoading(false);
     }
   };
 const handleRootClick =()=>{
@@ -620,15 +624,17 @@ const handleRootClick =()=>{
                     <TableCell>
                       {item.type === 'folder' ? (
                         <>
-                        <span onClick={item.type === 'folder' ? () => handleFolderClick(item) : undefined}>
+                        <span className="icon-text" onClick={item.type === 'folder' ? () => handleFolderClick(item) : undefined}>
                           <CreateNewFolderIcon className='customFolderIcon'/>
                           &nbsp;{item.name}
                         </span>
                         </>
                       ) : (
                         <>
-                          <FilePresentIcon className="pptx_icons" /> &nbsp;
-                          {item.name}
+                            <span className="icon-text" >
+                              <FilePresentIcon className="pptx_icons" /> &nbsp;
+                              {item.name}
+                            </span>
                         </>
                       )}
                     </TableCell>
@@ -741,7 +747,7 @@ const handleRootClick =()=>{
       </Dialog>
       {/* end delete file confirmation */}
       {/*  Start folder delete confirmation */}
-      <Dialog open={folderDeleteDialogOpen.showHide} onClose={handleDeleteDialogClose}>
+      <Dialog open={folderDeleteDialogOpen.showHide?true:false} onClose={handleDeleteDialogClose}>
         <DialogTitle>Delete Confirmation</DialogTitle>
         <DialogContent>
           <DialogContentText>

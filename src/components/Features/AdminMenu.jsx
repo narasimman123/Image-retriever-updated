@@ -33,12 +33,14 @@ const AdminMenu = () => {
   const handleSideMenu = (data) => {
     setSidemenuHide(data);
     setActiveMenu(data);
-    window.location.reload();
+    if (data === 0) {
+      window.location.reload();
+    }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('isAuthenticated');
     navigate('/login');
   };
 

@@ -110,3 +110,11 @@
   color: #eba119;
   height: 25px !important;
 }
+.icon-text {
+  display: flex;
+  align-items: center; /* Aligns items vertically in the center */
+}
+
+.icon-text svg {
+  margin-right: 5px; /* Space between the icon and text */
+}

@@ -15,8 +15,8 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    const user = JSON.parse(localStorage.getItem('user'));
+    const authStatus = sessionStorage.getItem('isAuthenticated') === 'true';
+    const user = JSON.parse(sessionStorage.getItem('user'));
 
     setIsAuthenticated(authStatus);
     setRoleId(user ? user.role_id : null);

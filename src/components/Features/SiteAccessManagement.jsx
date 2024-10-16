@@ -76,7 +76,8 @@ const SiteAccessManagement = () => {
       resetForm();
       setOpen(false);
     } catch (error) {
-      showSnackbar('Failed to add user', 'error');
+      const errorMessage = error.response?.data?.error || 'Failed to add user';
+      showSnackbar(errorMessage, 'error');
     }
   };
 
@@ -135,8 +136,8 @@ const SiteAccessManagement = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('user');
     navigate('/admin/login');
   };
 
