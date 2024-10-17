@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { FaBars, FaSync, FaSignOutAlt } from 'react-icons/fa';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import ImageRetriever from '../ImageRetriever';
-import ContentRetriever from '../ContentRetriever';
 import TopBar from '../TopBar';
-import Login from '../Login';
 import '../findIn.css';
 import axios from 'axios';
 import ChangePondDrive from './ChangePondDrive';
@@ -23,8 +19,8 @@ const AdminMenu = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
   const [updateDemanName,SetUpdateDemanName] = useState('On Demand');
+  const [redirectLink, setRedirectLink] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   // const handleCollapse = () => {
   //   setIsCollapsed(!isCollapsed);
@@ -34,7 +30,7 @@ const AdminMenu = () => {
     setSidemenuHide(data);
     setActiveMenu(data);
     if (data === 0) {
-      window.location.reload();
+      setRedirectLink(true);
     }
   };
 
@@ -93,7 +89,7 @@ const AdminMenu = () => {
         </aside>
 
         <div className="main-content">
-          {sidemenuHide === 0 && <ChangePondDrive />}
+          {sidemenuHide === 0 && <ChangePondDrive redirectLink={redirectLink} setRedirectLink={setRedirectLink} />}
           {sidemenuHide === 1 && <SiteAccessManagement />}
         </div>
       </div>

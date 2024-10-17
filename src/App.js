@@ -24,12 +24,13 @@ function App() {
 
   return (
     <Routes>
+      {/* Public Routes */}
       <Route path="/admin/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
       <Route path="/user/login" element={<UserLogin />} />
       <Route path='/user/forgot-password' element={<ForgotPassword />} />
-      <Route path="" element={<Navigate to="/user/login" />} />
+      <Route path="/user/reset-password/:token" element={<NewUserResetPassword />} />
 
-      {/* Admin routes - accessible only if role_id is 1 */}
+      {/* Admin routes - accessible only if authenticated and role_id is 1 */}
       {isAuthenticated && roleId === 1 ? (
         <>
           <Route path="/admin/dashboard" element={<AdminMenu />} />
@@ -39,7 +40,7 @@ function App() {
         </>
       ) : null}
 
-      {/* User routes - accessible only if role_id is 2 */}
+      {/* User routes - accessible only if authenticated and role_id is 2 */}
       {isAuthenticated && roleId === 2 ? (
         <>
           <Route path="/user/dashboard" element={<FindIn />} />
@@ -47,8 +48,7 @@ function App() {
         </>
       ) : null}
 
-      <Route path="/user/reset-password/:token" element={<NewUserResetPassword />} />
-      {/* Redirect unknown routes */}
+      {/* Redirect any unknown routes */}
       <Route path="*" element={<Navigate to={isAuthenticated ? (roleId === 1 ? "/admin/dashboard" : "/user/dashboard") : "/user/login"} />} />
     </Routes>
   );

@@ -36,7 +36,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import '../styles/custom.css';
 import { useNavigate } from 'react-router-dom';
 import FilePresentIcon from '@mui/icons-material/FilePresent';
-const ChangePondDrive = () => {
+const ChangePondDrive = ({redirectLink,setRedirectLink }) => {
   const [rows, setRows] = useState([]);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
@@ -63,12 +63,12 @@ const ChangePondDrive = () => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-    const sortedRows = [...files].sort((a, b) => {
+    const sortedRows = [...rows].sort((a, b) => {
       if (a[property] < b[property]) return isAsc ? -1 : 1;
       if (a[property] > b[property]) return isAsc ? 1 : -1;
       return 0;
     });
-    setFiles(sortedRows);
+    setRows(sortedRows)
   };
 
   const fetchFiles = async (folder = '') => {
@@ -86,13 +86,12 @@ const ChangePondDrive = () => {
                 ...blob,
                 type: "file"
             }));
-// Combine files and folders
             const output = [...fileList, ...uniqueFolders];
-console.log(JSON.stringify(output)); // Check the output here
             setLoading(false);
             setFolders(uniqueFolders); // Set unique folders 
             setFiles(fileList); // Set files
-            setRows(output); // Keep rows for sorting and searching
+            setRows(output); 
+            setRedirectLink(false);
       }
     } catch (error) {
         setSnackbarMessage('Failed to fetch files.');
@@ -201,8 +200,13 @@ console.log(JSON.stringify(output)); // Check the output here
     }
   };
   const handleFolderDelete = async (fileNames) =>{
+    console.log(fileNames)
     setLoading(true);
-    const blobNames = fileNames.fileData.files.length>0?fileNames.fileData.files.map(file => `${fileNames.fileData.name}/${file.name}`):[fileNames.fileData.name+'/'];
+    let blobNames = fileNames.fileData.files.length > 0 ? fileNames.fileData.files.map(file => `${fileNames.fileData.name}/${file.name}`) : [fileNames.fileData.name + '/'];
+    console.log(blobNames)
+    if(fileNames.fileData && fileNames.fileData.type === "folder" && fileNames.fileData.files.length > 0){
+      blobNames.push(fileNames.fileData.name+'/')
+    }
     const payload = JSON.stringify({
         paths: blobNames
     });
@@ -301,10 +305,9 @@ console.log(JSON.stringify(output)); // Check the output here
     setSearchTerm(event.target.value);
   };
 
-  const filteredFiles = files.filter((file) =>
+  const filteredFiles = rows.filter((file) =>
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const handleDeleteDialogClose = () => {
     setDeleteDialogOpen(false);
     setFolderDeleteDialogOpen(folderDeleteDialogOpen.showHide=false);
@@ -316,16 +319,17 @@ console.log(JSON.stringify(output)); // Check the output here
     setDeleteDialogOpen(false);
   };
   const confirmFolderDelete =()=>{
-    console.log(folderDeleteDialogOpen)
     handleFolderDelete (folderDeleteDialogOpen);
     setFolderDeleteDialogOpen(folderDeleteDialogOpen.showHide=false);
     setFolderDeleteShowHide(false)
   }
   useEffect(() => {
     fetchFiles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+    if(redirectLink){
+      setCurrentPath('')
+    }
+  }, [redirectLink]);
+  
   const handleLogout = () => {
     sessionStorage.removeItem('isAuthenticated');
     sessionStorage.removeItem('user');
@@ -618,8 +622,8 @@ const handleRootClick =()=>{
                   </TableCell>
                 </TableRow>
               )}
-              {rows.length > 0 ? (
-                rows.map(item => (
+              {filteredFiles.length > 0 ? (
+                filteredFiles.map(item => (
                   <TableRow
                     key={item.name}
                     hover
