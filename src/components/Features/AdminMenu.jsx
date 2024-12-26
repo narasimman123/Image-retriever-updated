@@ -5,10 +5,13 @@ import '../findIn.css';
 import axios from 'axios';
 import ChangePondDrive from './ChangePondDrive';
 import SiteAccessManagement from './SiteAccessManagement';
+import ImageDataFetcher from './ImageDataFetcher'; 
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Snackbar, Alert } from '@mui/material';
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';  // Added gallery icon
+
 
 const AdminMenu = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -84,6 +87,9 @@ const AdminMenu = () => {
               <Link className={`font_size_13 menu-item ${activeMenu === 'On_demand' ? 'active' : ''}`} onClick={handleDemandClick}>
                 <RefreshIcon /> {updateDemanName}
               </Link>
+              <Link className={`font_size_13 menu-item ${activeMenu === 2 ? 'active' : ''}`} onClick={() => handleSideMenu(2)}>
+                <PhotoLibraryIcon /> Image Dashboard
+              </Link>
             </div>
           )}
         </aside>
@@ -91,6 +97,7 @@ const AdminMenu = () => {
         <div className="main-content">
           {sidemenuHide === 0 && <ChangePondDrive redirectLink={redirectLink} setRedirectLink={setRedirectLink} />}
           {sidemenuHide === 1 && <SiteAccessManagement />}
+          {sidemenuHide === 2 && <ImageDataFetcher />}  
         </div>
       </div>
 
