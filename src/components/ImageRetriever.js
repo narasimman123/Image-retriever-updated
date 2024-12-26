@@ -45,7 +45,7 @@ const ImageRetriever = () => {
     setChatHistory((prev) => [...prev, { type: 'user', text: query }]);
 
     try {
-      const response = await axios.post('/api/image-retriever', { query });
+      const response = await axios.post('/api/image_query', { query });
       setResults(response.data);
       setChatHistory((prev) => [
         ...prev,
@@ -72,37 +72,8 @@ const ImageRetriever = () => {
     handleSearch(term);
   };
 
-  const handleImageClick = (imgBase64) => {
-    const newWindow = window.open('', '_blank');
-    if (newWindow) {
-      newWindow.document.write(`
-        <html>
-          <head>
-            <title>Expanded Image</title>
-            <style>
-              body {
-                margin: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                overflow: hidden;
-                background-color: #000;
-              }
-              img {
-                max-width: 100%;
-                max-height: 100%;
-                object-fit: contain;
-              }
-            </style>
-          </head>
-          <body>
-            <img src="data:image/png;base64,${imgBase64}" alt="Expanded Image" />
-          </body>
-        </html>
-      `);
-      newWindow.document.close();
-    }
+  const handleImageClick = (imageUrl) => {
+    window.open(imageUrl, '_blank');
   };
 
   useEffect(() => {
@@ -162,34 +133,34 @@ const ImageRetriever = () => {
             </div>
             <div className="message-content">{entry.text}</div>
             {entry.results && (
-             <div className="results-section">
-             {entry.results.map((result, idx) => (
-               <div key={idx} className="result-item">
-                 {result.img_base64 ? (
-                   <div className="image-container">
-                     <Tooltip title="View Image in full screen" arrow>
-                       <IconButton
-                         className="expand-icon"
-                         onClick={() => handleImageClick(result.img_base64)}
-                         aria-label="Expand Image"
-                         style={{ position: 'absolute', top: -37, right: -28, color: 'black' }}
-                       >
-                         <FullscreenIcon />
-                       </IconButton>
-                     </Tooltip>
-                     <img
-                       src={`data:image/png;base64,${result.img_base64}`}
-                       alt={`Retrieved content ${idx}`}
-                       className="retrieved-image"
-                       style={{ cursor: 'pointer' }}
-                     />
-                   </div>
-                 ) : (
-                   <p>No image available</p>
-                 )}
-                 <div className="additional-info">
-                   <p><strong>Distance :</strong> {result.distance ? result.distance.toFixed(2) : 'N/A'}</p>
-                   <p><strong>Slide :</strong> {result.slide ? result.slide : 'N/A'}</p>
+              <div className="results-section">
+                {entry.results.map((result, idx) => (
+                  <div key={idx} className="result-item">
+                    {result.image_url ? (
+                      <div className="image-container">
+                        <Tooltip title="View Image in full screen" arrow>
+                          <IconButton
+                            className="expand-icon"
+                            onClick={() => handleImageClick(result.image_url)}
+                            aria-label="Expand Image"
+                            style={{ position: 'absolute', top: -37, right: -28, color: 'black' }}
+                          >
+                            <FullscreenIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <img
+                          src={result.image_url}
+                          alt={`Retrieved content ${idx}`}
+                          className="retrieved-image"
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </div>
+                    ) : (
+                      <p>No image available</p>
+                    )}
+                    <div className="additional-info">
+                   {/* <p><strong>Distance :</strong> {result.distance ? result.distance.toFixed(2) : 'N/A'}</p>
+                   <p><strong>Slide :</strong> {result.slide ? result.slide : 'N/A'}</p> */}
                    <p>
                      {result.source ? (
                        <Tooltip title={result.source.replace(/\\/g, '/')} arrow>
