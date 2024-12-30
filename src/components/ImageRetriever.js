@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Tooltip from '@mui/material/Tooltip';
 import DownloadIcon from '@mui/icons-material/Download';
+import { Checkbox } from '@mui/material';
 
 const icons = {
   'Automation Factory Model': <FaRobot />,
@@ -27,6 +28,9 @@ const ImageRetriever = () => {
   const [error, setError] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const chatHistoryRef = useRef(null);
+  const [useLLM, setUseLLM] = useState(false);
+
+  const toggleLLM = () => setUseLLM(!useLLM);
 
   const handleInputChange = (e) => {
     setSearchQuery(e.target.value);
@@ -45,7 +49,10 @@ const ImageRetriever = () => {
     setChatHistory((prev) => [...prev, { type: 'user', text: query }]);
 
     try {
-      const response = await axios.post('/api/image_query', { query });
+      // Send the useLLM toggle state to the API
+      const response = await axios.post('/api/image_query', { query, useLLM });
+
+      // Check if response contains results or LLM response
       setResults(response.data);
       setChatHistory((prev) => [
         ...prev,
@@ -159,8 +166,6 @@ const ImageRetriever = () => {
                       <p>No image available</p>
                     )}
                     <div className="additional-info">
-                   {/* <p><strong>Distance :</strong> {result.distance ? result.distance.toFixed(2) : 'N/A'}</p>
-                   <p><strong>Slide :</strong> {result.slide ? result.slide : 'N/A'}</p> */}
                    <p>
                      {result.source ? (
                        <Tooltip title={result.source.replace(/\\/g, '/')} arrow>
@@ -173,7 +178,6 @@ const ImageRetriever = () => {
                        'N/A'
                      )}
                    </p>
-                   {/* Conditionally render <hr> if this is not the last result */}
                    {idx < entry.results.length - 1 && <hr />}
                  </div>
                </div>
@@ -186,7 +190,6 @@ const ImageRetriever = () => {
 
       {!results.length && !isLoading && !error && (
         <div className="main-section">
-          {/* <SearchIcon fontSize="large" sx={{ color: '#3f51b5', fontSize: 50, mt: 2, mb: 5 }} /> */}
           <div className="questions-grid">
             {Object.keys(icons).map((key) => (
               <div
@@ -209,6 +212,18 @@ const ImageRetriever = () => {
       {error && <div className="error-message">{error}</div>}
 
       <footer className="input-section">
+        <div className="toggle-container">
+          <label className="toggle-label">
+            <span className={`toggle-text ${useLLM ? 'active' : ''}`}>LLM</span>
+            <input
+              type="checkbox"
+              checked={useLLM}
+              onChange={toggleLLM}
+              className="toggle-input"
+            />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
         <input
           type="text"
           value={searchQuery}
@@ -217,7 +232,9 @@ const ImageRetriever = () => {
           placeholder="How can I help you?"
           className="chat-input"
         />
-        <button className="send-btn" onClick={() => handleSearch(searchQuery)}>↑</button>
+        <button className="send-btn" onClick={() => handleSearch(searchQuery)}>
+          ↑
+        </button>
       </footer>
     </div>
   );
