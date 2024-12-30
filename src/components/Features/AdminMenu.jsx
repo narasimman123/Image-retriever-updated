@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TopBar from '../TopBar';
 import '../findIn.css';
 import axios from 'axios';
 import ChangePondDrive from './ChangePondDrive';
 import SiteAccessManagement from './SiteAccessManagement';
-import ImageDataFetcher from './ImageDataFetcher'; 
+import ImageDataFetcher from './ImageDataFetcher';
+import GroqTemplateManager from './GroqTemplateManager';
+import ConfigManager from './ConfigManager';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import SettingsIcon from '@mui/icons-material/Settings';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import TuneIcon from '@mui/icons-material/Tune';
 import { Snackbar, Alert } from '@mui/material';
-import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';  // Added gallery icon
-
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 
 const AdminMenu = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -20,14 +23,10 @@ const AdminMenu = () => {
   const [activeMenu, setActiveMenu] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
-  const [updateDemanName,SetUpdateDemanName] = useState('On Demand');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [updateDemanName, SetUpdateDemanName] = useState('On Demand');
   const [redirectLink, setRedirectLink] = useState(false);
   const navigate = useNavigate();
-
-  // const handleCollapse = () => {
-  //   setIsCollapsed(!isCollapsed);
-  // };
 
   const handleSideMenu = (data) => {
     setSidemenuHide(data);
@@ -90,6 +89,12 @@ const AdminMenu = () => {
               <Link className={`font_size_13 menu-item ${activeMenu === 2 ? 'active' : ''}`} onClick={() => handleSideMenu(2)}>
                 <PhotoLibraryIcon /> Image Dashboard
               </Link>
+              <Link className={`font_size_13 menu-item ${activeMenu === 3 ? 'active' : ''}`} onClick={() => handleSideMenu(3)}>
+                <TextFieldsIcon /> GROQ Prompt
+              </Link>
+              <Link className={`font_size_13 menu-item ${activeMenu === 4 ? 'active' : ''}`} onClick={() => handleSideMenu(4)}>
+                <TuneIcon /> Config Settings
+              </Link>
             </div>
           )}
         </aside>
@@ -97,11 +102,12 @@ const AdminMenu = () => {
         <div className="main-content">
           {sidemenuHide === 0 && <ChangePondDrive redirectLink={redirectLink} setRedirectLink={setRedirectLink} />}
           {sidemenuHide === 1 && <SiteAccessManagement />}
-          {sidemenuHide === 2 && <ImageDataFetcher />}  
+          {sidemenuHide === 2 && <ImageDataFetcher />}
+          {sidemenuHide === 3 && <GroqTemplateManager />}
+          {sidemenuHide === 4 && <ConfigManager />}
         </div>
       </div>
 
-      {/* Snackbar for displaying messages */}
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}

@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardMedia, Grid, Box, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Snackbar, Alert } from '@mui/material';
+import { 
+    Card, 
+    CardMedia, 
+    Grid, 
+    Box, 
+    CircularProgress, 
+    Dialog, 
+    DialogContent, 
+    DialogTitle, 
+    Button, 
+    Typography, 
+    Snackbar, 
+    Alert,
+    IconButton 
+} from '@mui/material';
+import { 
+    Folder as FolderIcon, 
+    KeyboardArrowDown, 
+    KeyboardArrowRight, 
+    ContentCopy as ContentCopyIcon,
+    Close as CloseIcon,
+    ChevronLeft as ChevronLeftIcon,
+    ChevronRight as ChevronRightIcon
+} from '@mui/icons-material';
 
 const ImageDataFetcher = () => {
     const [imageData, setImageData] = useState([]);
@@ -7,8 +30,10 @@ const ImageDataFetcher = () => {
     const [error, setError] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar state
-    const [snackbarMessage, setSnackbarMessage] = useState(''); // Message to display in Snackbar
+    const [currentImageIndex, setCurrentImageIndex] = useState(null); // Track current image index
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [openFolders, setOpenFolders] = useState({});
 
     useEffect(() => {
         const fetchImageData = async () => {
@@ -29,7 +54,6 @@ const ImageDataFetcher = () => {
         fetchImageData();
     }, []);
 
-    // Group images by their source
     const groupedImages = imageData.reduce((acc, item) => {
         const source = item.source || 'Unknown Source';
         if (!acc[source]) {
@@ -39,8 +63,16 @@ const ImageDataFetcher = () => {
         return acc;
     }, {});
 
-    const handleImageClick = (item) => {
+    const handleFolderToggle = (source) => {
+        setOpenFolders((prev) => ({
+            ...prev,
+            [source]: !prev[source],
+        }));
+    };
+
+    const handleImageClick = (item, index) => {
         setSelectedImage(item);
+        setCurrentImageIndex(index); // Set the index of the clicked image
         setOpenDialog(true);
     };
 
@@ -57,24 +89,95 @@ const ImageDataFetcher = () => {
             })
             .catch((err) => {
                 console.error('Failed to copy: ', err);
+                setSnackbarMessage('Failed to copy URL');
+                setSnackbarOpen(true);
             });
     };
 
-    const handleSnackbarClose = () => {
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
         setSnackbarOpen(false);
     };
 
+    // Navigate to the next image
+    const goToNextImage = () => {
+        setCurrentImageIndex((prevIndex) => {
+            const nextIndex = prevIndex + 1;
+            return nextIndex >= imageData.length ? 0 : nextIndex; // Wrap around
+        });
+    };
+
+    // Navigate to the previous image
+    const goToPreviousImage = () => {
+        setCurrentImageIndex((prevIndex) => {
+            const newPrevIndex = prevIndex - 1;  // Renamed to newPrevIndex to avoid conflict
+            return newPrevIndex < 0 ? imageData.length - 1 : newPrevIndex; // Wrap around
+        });
+    };
+
+    const ImageCard = ({ item, onClick }) => (
+        <Card
+            onClick={onClick}
+            sx={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                cursor: 'pointer',
+                border: '1px solid #e0e0e0',
+                borderRadius: '4px',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                    borderColor: '#0078D7',
+                    backgroundColor: '#f5f9ff',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                },
+            }}
+        >
+            <Box sx={{ position: 'relative', paddingTop: '75%' }}>
+                <CardMedia
+                    component="img"
+                    image={item.image_url}
+                    alt={item.description || 'Image'}
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain', // This ensures the entire image is visible
+                        objectPosition: 'center', // Keeps the image centered
+                    }}
+                />
+            </Box>
+        </Card>
+    );
+    
     if (loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress />
+            <Box 
+                display="flex" 
+                justifyContent="center" 
+                alignItems="center" 
+                height="100vh"
+                bgcolor="#ffffff"
+            >
+                <CircularProgress sx={{ color: '#0078D7' }} />
             </Box>
         );
     }
 
     if (error) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+            <Box 
+                display="flex" 
+                justifyContent="center" 
+                alignItems="center" 
+                height="100vh"
+                bgcolor="#ffffff"
+            >
                 <Typography variant="h6" color="error">
                     Error: {error}
                 </Typography>
@@ -83,116 +186,263 @@ const ImageDataFetcher = () => {
     }
 
     return (
-        <Box sx={{ padding: 4, backgroundColor: '#f5f5f5' }}>
-            <Box
-                sx={{
-                    maxHeight: '80vh',
-                    overflowY: 'auto',
-                    paddingRight: '16px',
-                }}
-            >
-                {/* Render groups by source */}
-                {Object.keys(groupedImages).map((source, index) => (
-                    <Box key={index} sx={{ marginBottom: 4 }}>
-                        {/* Source Header with Image Count */}
-                        <Card sx={{ backgroundColor: '#3f51b5', color: 'white', borderRadius: 2, padding: 2, marginBottom: 2, boxShadow: 3 }}>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                                {source} ({groupedImages[source].length} Images)
-                            </Typography>
-                        </Card>
-
-                        {/* Image Grid for this Source */}
-                        <Grid container spacing={4}>
-                            {groupedImages[source].map((item, index) => (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
-                                    <Card
-                                        sx={{
-                                            border: '1px solid #ddd',
-                                            borderRadius: 2,
-                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                            transition: 'transform 0.3s, box-shadow 0.3s',
-                                            '&:hover': {
-                                                transform: 'scale(1.05)',
-                                                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
-                                            },
-                                        }}
-                                        onClick={() => handleImageClick(item)}
-                                    >
-                                        {item.image_url && (
-                                            <CardMedia
-                                                component="img"
-                                                height="auto"
-                                                image={item.image_url}
-                                                alt={item.description || 'Image'}
-                                                loading="lazy"
-                                                sx={{
-                                                    width: '100%',
-                                                    objectFit: 'contain', // Maintain aspect ratio
-                                                    borderTopLeftRadius: '8px',
-                                                    borderTopRightRadius: '8px',
-                                                }}
-                                            />
-                                        )}
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
-                ))}
+        <Box sx={{ 
+            height: '100vh', 
+            backgroundColor: '#ffffff', 
+            display: 'flex', 
+            flexDirection: 'column' 
+        }}>
+            {/* Windows-style title bar */}
+            <Box sx={{
+                backgroundColor: '#0078D7',
+                color: 'white',
+                padding: '8px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+            }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <FolderIcon sx={{ marginRight: 1 }} />
+                    <Typography variant="h6">Image Explorer</Typography>
+                </Box>
             </Box>
 
-            {/* Image Detail Dialog */}
-            <Dialog open={openDialog} onClose={handleDialogClose} maxWidth="md" fullWidth>
-                <DialogTitle>Image Details</DialogTitle>
-                <DialogContent>
+            {/* Main content area */}
+            <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+                {/* Folder Sidebar */}
+                <Box sx={{
+                    width: 280,
+                    borderRight: '1px solid #e0e0e0',
+                    backgroundColor: '#f8f9fa',
+                    overflowY: 'auto',
+                    padding: 2
+                }}>
+                    {Object.keys(groupedImages).map((source, index) => (
+                        <Box
+                            key={index}
+                            onClick={() => handleFolderToggle(source)}
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                p: 1,
+                                mb: 0.5,
+                                cursor: 'pointer',
+                                borderRadius: 1,
+                                backgroundColor: openFolders[source] ? '#e5f3ff' : 'transparent',
+                                '&:hover': {
+                                    backgroundColor: openFolders[source] ? '#e5f3ff' : '#f0f0f0'
+                                }
+                            }}
+                        >
+                            {openFolders[source] ? 
+                                <KeyboardArrowDown sx={{ color: '#666', mr: 1 }} /> :
+                                <KeyboardArrowRight sx={{ color: '#666', mr: 1 }} />
+                            }
+                            <FolderIcon sx={{ 
+                                color: openFolders[source] ? '#0078D7' : '#FFC107',
+                                mr: 1 
+                            }} />
+                            <Typography 
+                                variant="body2" 
+                                sx={{
+                                    fontWeight: openFolders[source] ? 600 : 400,
+                                    fontSize: '0.875rem' // Reduced font size for folders
+                                }}
+                            >
+                                {source} ({groupedImages[source].length})
+                            </Typography>
+                        </Box>
+                    ))}
+                </Box>
+
+                {/* Image grid area */}
+                <Box sx={{ 
+                    flex: 1,
+                    p: 3,
+                    overflowY: 'auto',
+                    backgroundColor: '#ffffff'
+                }}>
+                    <Grid container spacing={2}>
+                        {Object.entries(groupedImages).map(([source, items]) => (
+                            openFolders[source] && items.map((item, index) => (
+                                <Grid item xs={12} sm={6} md={4} lg={4} key={`${source}-${index}`}>
+                                    <ImageCard item={item} onClick={() => handleImageClick(item, index)} />
+                                </Grid>
+                            ))
+                        ))}
+                    </Grid>
+                </Box>
+            </Box>
+
+            {/* Image details dialog */}
+            <Dialog 
+                open={openDialog} 
+                onClose={handleDialogClose} 
+                maxWidth="lg" 
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        maxHeight: '90vh',
+                        borderRadius: '4px',
+                        position: 'relative'
+                    }
+                }}
+            >
+                {/* Left Arrow */}
+                <IconButton
+                    onClick={goToPreviousImage}
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: 0,
+                        transform: 'translateY(-50%)',
+                        zIndex: 100,
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        color: 'white',
+                        borderRadius: '50%',
+                        '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        }
+                    }}
+                >
+                    <ChevronLeftIcon />
+                </IconButton>
+
+                {/* Right Arrow */}
+                <IconButton
+                    onClick={goToNextImage}
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        right: 0,
+                        transform: 'translateY(-50%)',
+                        zIndex: 100,
+                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                        color: 'white',
+                        borderRadius: '50%',
+                        '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        }
+                    }}
+                >
+                    <ChevronRightIcon />
+                </IconButton>
+
+                <DialogTitle 
+                    sx={{ 
+                        borderBottom: '1px solid #e0e0e0',
+                        bgcolor: '#f8f9fa',
+                        m: 0,
+                        p: 2,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}
+                >
+                    <Typography variant="h6">Image Details</Typography>
+                    <IconButton onClick={handleDialogClose} size="small">
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+
+                <DialogContent sx={{ p: 0 }}>
                     {selectedImage && (
-                        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
-                            {/* Left side (Image and Copy URL) */}
-                            <Box sx={{ flex: 1 }}>
-                                <img
-                                    src={selectedImage.image_url}
-                                    alt={selectedImage.description || 'Image'}
-                                    style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-                                />
-                                <Box sx={{ marginTop: 2 }}>
-                                    <Button 
-                                        variant="contained" 
-                                        color="primary" 
+                        <Box sx={{ display: 'flex', height: '600px' }}>
+                            {/* Left side - Image preview */}
+                            <Box sx={{ 
+                                flex: 2,
+                                p: 3,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                borderRight: '1px solid #e0e0e0'
+                            }}>
+                                <Box sx={{ 
+                                    flex: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    bgcolor: '#f8f9fa',
+                                    borderRadius: '4px',
+                                    overflow: 'hidden'
+                                }}>
+                                    <img
+                                        src={imageData[currentImageIndex].image_url}
+                                        alt={imageData[currentImageIndex].description}
+                                        style={{
+                                            maxWidth: '100%',
+                                            maxHeight: '100%',
+                                            objectFit: 'contain'
+                                        }}
+                                    />
+                                </Box>
+
+                                {/* URL section */}
+                                <Box sx={{ mt: 2 }}>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Image URL:
+                                    </Typography>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<ContentCopyIcon />}
+                                        onClick={() => copyImageUrl(imageData[currentImageIndex].image_url)}
                                         fullWidth
-                                        onClick={() => copyImageUrl(selectedImage.image_url)}
+                                        sx={{
+                                            textTransform: 'none',
+                                            justifyContent: 'flex-start'
+                                        }}
                                     >
-                                        Copy Image URL
+                                        Copy URL to clipboard
                                     </Button>
                                 </Box>
                             </Box>
 
-                            {/* Right side (Description) */}
-                            <Box sx={{ flex: 2 }}>
-                                <Typography variant="h6" gutterBottom>Description:</Typography>
-                                <Typography variant="body1" paragraph>
-                                    {selectedImage.description || 'No description available.'}
+                            {/* Right side - Details */}
+                            <Box sx={{ flex: 1, p: 3 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Details
                                 </Typography>
-                                <Typography variant="h6" gutterBottom>Source:</Typography>
-                                <Typography variant="body1">{selectedImage.source || 'No source available.'}</Typography>
+
+                                <Box sx={{ mt: 3 }}>
+                                    <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                        Description
+                                    </Typography>
+                                    <Typography variant="body1" paragraph>
+                                        {imageData[currentImageIndex].description || 'No description available'}
+                                    </Typography>
+                                </Box>
+
+                                <Box sx={{ mt: 3 }}>
+                                    <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                        Source
+                                    </Typography>
+                                    <Typography variant="body1">
+                                        {imageData[currentImageIndex].source || 'No source available'}
+                                    </Typography>
+                                </Box>
                             </Box>
                         </Box>
                     )}
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleDialogClose} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
             </Dialog>
-            
-            {/* Snackbar for URL Copy Confirmation */}
-            <Snackbar 
-                open={snackbarOpen} 
-                autoHideDuration={3000} 
-                onClose={handleSnackbarClose} 
+
+            {/* Snackbar notifications */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
-                <Alert onClose={handleSnackbarClose} severity="success" sx={{ backgroundColor: '#2196F3', color: 'white' }}>
+                <Alert 
+                    onClose={handleSnackbarClose} 
+                    severity="success" 
+                    sx={{ 
+                        backgroundColor: '#0078D7', 
+                        color: 'white',
+                        '& .MuiAlert-icon': {
+                            color: 'white'
+                        }
+                    }}
+                >
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
