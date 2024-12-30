@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Card, 
-    CardMedia, 
-    Grid, 
-    Box, 
-    CircularProgress, 
-    Dialog, 
-    DialogContent, 
-    DialogTitle, 
-    Button, 
-    Typography, 
-    Snackbar, 
+import {
+    Card,
+    CardMedia,
+    Grid,
+    Box,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Button,
+    Typography,
+    Snackbar,
     Alert,
-    IconButton 
+    IconButton
 } from '@mui/material';
-import { 
-    Folder as FolderIcon, 
-    KeyboardArrowDown, 
-    KeyboardArrowRight, 
+import {
+    Folder as FolderIcon,
+    KeyboardArrowDown,
+    KeyboardArrowRight,
     ContentCopy as ContentCopyIcon,
     Close as CloseIcon,
     ChevronLeft as ChevronLeftIcon,
@@ -33,7 +33,7 @@ const ImageDataFetcher = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(null); // Track current image index
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [openFolders, setOpenFolders] = useState({});
+    const [openFolder, setOpenFolder] = useState(null); // Track currently open folder
 
     useEffect(() => {
         const fetchImageData = async () => {
@@ -63,22 +63,22 @@ const ImageDataFetcher = () => {
         return acc;
     }, {});
 
-    const handleFolderToggle = (source) => {
-        setOpenFolders((prev) => ({
-            ...prev,
-            [source]: !prev[source],
-        }));
+    const handleFolderClick = (source) => {
+        setOpenFolder((prev) => (prev === source ? null : source)); // Toggle the folder
+        setCurrentImageIndex(null); // Reset current image index when folder changes
     };
 
-    const handleImageClick = (item, index) => {
+    const handleImageClick = (item, index, source) => {
         setSelectedImage(item);
         setCurrentImageIndex(index); // Set the index of the clicked image
         setOpenDialog(true);
+        setOpenFolder(source); // Ensure folder stays open
     };
 
     const handleDialogClose = () => {
         setOpenDialog(false);
         setSelectedImage(null);
+        setCurrentImageIndex(null); // Reset when dialog closes
     };
 
     const copyImageUrl = (url) => {
@@ -101,20 +101,22 @@ const ImageDataFetcher = () => {
         setSnackbarOpen(false);
     };
 
-    // Navigate to the next image
+    // Navigate to the next image within the folder
     const goToNextImage = () => {
-        setCurrentImageIndex((prevIndex) => {
-            const nextIndex = prevIndex + 1;
-            return nextIndex >= imageData.length ? 0 : nextIndex; // Wrap around
-        });
+        if (openFolder && currentImageIndex !== null) {
+            const imagesInFolder = groupedImages[openFolder];
+            const nextIndex = (currentImageIndex + 1) % imagesInFolder.length; // Wrap around
+            setCurrentImageIndex(nextIndex);
+        }
     };
 
-    // Navigate to the previous image
+    // Navigate to the previous image within the folder
     const goToPreviousImage = () => {
-        setCurrentImageIndex((prevIndex) => {
-            const newPrevIndex = prevIndex - 1;  // Renamed to newPrevIndex to avoid conflict
-            return newPrevIndex < 0 ? imageData.length - 1 : newPrevIndex; // Wrap around
-        });
+        if (openFolder && currentImageIndex !== null) {
+            const imagesInFolder = groupedImages[openFolder];
+            const prevIndex = (currentImageIndex - 1 + imagesInFolder.length) % imagesInFolder.length; // Wrap around
+            setCurrentImageIndex(prevIndex);
+        }
     };
 
     const ImageCard = ({ item, onClick }) => (
@@ -147,14 +149,14 @@ const ImageDataFetcher = () => {
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        objectFit: 'contain', // This ensures the entire image is visible
-                        objectPosition: 'center', // Keeps the image centered
+                        objectFit: 'contain',
+                        objectPosition: 'center',
                     }}
                 />
             </Box>
         </Card>
     );
-    
+
     if (loading) {
         return (
             <Box 
@@ -192,7 +194,6 @@ const ImageDataFetcher = () => {
             display: 'flex', 
             flexDirection: 'column' 
         }}>
-            {/* Windows-style title bar */}
             <Box sx={{
                 backgroundColor: '#0078D7',
                 color: 'white',
@@ -207,9 +208,7 @@ const ImageDataFetcher = () => {
                 </Box>
             </Box>
 
-            {/* Main content area */}
             <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-                {/* Folder Sidebar */}
                 <Box sx={{
                     width: 280,
                     borderRight: '1px solid #e0e0e0',
@@ -220,7 +219,7 @@ const ImageDataFetcher = () => {
                     {Object.keys(groupedImages).map((source, index) => (
                         <Box
                             key={index}
-                            onClick={() => handleFolderToggle(source)}
+                            onClick={() => handleFolderClick(source)}
                             sx={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -228,25 +227,25 @@ const ImageDataFetcher = () => {
                                 mb: 0.5,
                                 cursor: 'pointer',
                                 borderRadius: 1,
-                                backgroundColor: openFolders[source] ? '#e5f3ff' : 'transparent',
+                                backgroundColor: openFolder === source ? '#e5f3ff' : 'transparent',
                                 '&:hover': {
-                                    backgroundColor: openFolders[source] ? '#e5f3ff' : '#f0f0f0'
+                                    backgroundColor: openFolder === source ? '#e5f3ff' : '#f0f0f0'
                                 }
                             }}
                         >
-                            {openFolders[source] ? 
+                            {openFolder === source ? 
                                 <KeyboardArrowDown sx={{ color: '#666', mr: 1 }} /> :
                                 <KeyboardArrowRight sx={{ color: '#666', mr: 1 }} />
                             }
                             <FolderIcon sx={{ 
-                                color: openFolders[source] ? '#0078D7' : '#FFC107',
+                                color: openFolder === source ? '#0078D7' : '#FFC107',
                                 mr: 1 
                             }} />
                             <Typography 
                                 variant="body2" 
                                 sx={{
-                                    fontWeight: openFolders[source] ? 600 : 400,
-                                    fontSize: '0.875rem' // Reduced font size for folders
+                                    fontWeight: openFolder === source ? 600 : 400,
+                                    fontSize: '0.875rem'
                                 }}
                             >
                                 {source} ({groupedImages[source].length})
@@ -255,20 +254,12 @@ const ImageDataFetcher = () => {
                     ))}
                 </Box>
 
-                {/* Image grid area */}
-                <Box sx={{ 
-                    flex: 1,
-                    p: 3,
-                    overflowY: 'auto',
-                    backgroundColor: '#ffffff'
-                }}>
+                <Box sx={{ flex: 1, p: 3, overflowY: 'auto', backgroundColor: '#ffffff' }}>
                     <Grid container spacing={2}>
-                        {Object.entries(groupedImages).map(([source, items]) => (
-                            openFolders[source] && items.map((item, index) => (
-                                <Grid item xs={12} sm={6} md={4} lg={4} key={`${source}-${index}`}>
-                                    <ImageCard item={item} onClick={() => handleImageClick(item, index)} />
-                                </Grid>
-                            ))
+                        {openFolder && groupedImages[openFolder].map((item, index) => (
+                            <Grid item xs={12} sm={6} md={4} key={`${openFolder}-${index}`}>
+                                <ImageCard item={item} onClick={() => handleImageClick(item, index, openFolder)} />
+                            </Grid>
                         ))}
                     </Grid>
                 </Box>
@@ -366,8 +357,8 @@ const ImageDataFetcher = () => {
                                     overflow: 'hidden'
                                 }}>
                                     <img
-                                        src={imageData[currentImageIndex].image_url}
-                                        alt={imageData[currentImageIndex].description}
+                                        src={groupedImages[openFolder][currentImageIndex].image_url}
+                                        alt={groupedImages[openFolder][currentImageIndex].description}
                                         style={{
                                             maxWidth: '100%',
                                             maxHeight: '100%',
@@ -384,7 +375,7 @@ const ImageDataFetcher = () => {
                                     <Button
                                         variant="outlined"
                                         startIcon={<ContentCopyIcon />}
-                                        onClick={() => copyImageUrl(imageData[currentImageIndex].image_url)}
+                                        onClick={() => copyImageUrl(groupedImages[openFolder][currentImageIndex].image_url)}
                                         fullWidth
                                         sx={{
                                             textTransform: 'none',
@@ -407,7 +398,7 @@ const ImageDataFetcher = () => {
                                         Description
                                     </Typography>
                                     <Typography variant="body1" paragraph>
-                                        {imageData[currentImageIndex].description || 'No description available'}
+                                        {groupedImages[openFolder][currentImageIndex].description || 'No description available'}
                                     </Typography>
                                 </Box>
 
@@ -416,7 +407,7 @@ const ImageDataFetcher = () => {
                                         Source
                                     </Typography>
                                     <Typography variant="body1">
-                                        {imageData[currentImageIndex].source || 'No source available'}
+                                        {groupedImages[openFolder][currentImageIndex].source || 'No source available'}
                                     </Typography>
                                 </Box>
                             </Box>
