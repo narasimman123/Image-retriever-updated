@@ -7,7 +7,7 @@ import axios from 'axios';
 const ConfigManager = () => {
   const [keywords, setKeywords] = useState([]);
   const [newKeyword, setNewKeyword] = useState('');
-  const [wordCountThreshold, setWordCountThreshold] = useState(10);
+  const [wordCountThreshold, setWordCountThreshold] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
 
