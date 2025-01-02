@@ -161,6 +161,12 @@ const ImageRetriever = () => {
                           className="retrieved-image"
                           style={{ cursor: 'pointer' }}
                         />
+                        <br></br>
+                         <div>
+                          {result.score && (
+                            <p><b>Score</b>: {result.score}</p>
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <p>No image available</p>
