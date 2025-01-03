@@ -12,7 +12,9 @@ import {
     Typography,
     Snackbar,
     Alert,
-    IconButton
+    IconButton,
+    Checkbox,
+    DialogActions
 } from '@mui/material';
 import {
     Folder as FolderIcon,
@@ -21,7 +23,10 @@ import {
     ContentCopy as ContentCopyIcon,
     Close as CloseIcon,
     ChevronLeft as ChevronLeftIcon,
-    ChevronRight as ChevronRightIcon
+    ChevronRight as ChevronRightIcon,
+    DeleteOutline as DeleteIcon,
+    RadioButtonUnchecked as UnselectIcon,
+    CheckCircleOutline as SelectIcon
 } from '@mui/icons-material';
 
 const ImageDataFetcher = () => {
@@ -30,10 +35,14 @@ const ImageDataFetcher = () => {
     const [error, setError] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [currentImageIndex, setCurrentImageIndex] = useState(null); // Track current image index
+    const [currentImageIndex, setCurrentImageIndex] = useState(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [openFolder, setOpenFolder] = useState(null); // Track currently open folder
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [openFolder, setOpenFolder] = useState(null);
+    const [selectionMode, setSelectionMode] = useState(false);
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
     useEffect(() => {
         const fetchImageData = async () => {
@@ -64,32 +73,36 @@ const ImageDataFetcher = () => {
     }, {});
 
     const handleFolderClick = (source) => {
-        setOpenFolder((prev) => (prev === source ? null : source)); // Toggle the folder
-        setCurrentImageIndex(null); // Reset current image index when folder changes
+        setOpenFolder((prev) => (prev === source ? null : source));
+        setCurrentImageIndex(null);
     };
 
     const handleImageClick = (item, index, source) => {
-        setSelectedImage(item);
-        setCurrentImageIndex(index); // Set the index of the clicked image
-        setOpenDialog(true);
-        setOpenFolder(source); // Ensure folder stays open
+        if (!selectionMode) {
+            setSelectedImage(item);
+            setCurrentImageIndex(index);
+            setOpenDialog(true);
+            setOpenFolder(source);
+        }
     };
 
     const handleDialogClose = () => {
         setOpenDialog(false);
         setSelectedImage(null);
-        setCurrentImageIndex(null); // Reset when dialog closes
+        setCurrentImageIndex(null);
     };
 
     const copyImageUrl = (url) => {
         navigator.clipboard.writeText(url)
             .then(() => {
                 setSnackbarMessage('Image URL copied to clipboard!');
+                setSnackbarSeverity('success');
                 setSnackbarOpen(true);
             })
             .catch((err) => {
                 console.error('Failed to copy: ', err);
                 setSnackbarMessage('Failed to copy URL');
+                setSnackbarSeverity('error');
                 setSnackbarOpen(true);
             });
     };
@@ -101,35 +114,101 @@ const ImageDataFetcher = () => {
         setSnackbarOpen(false);
     };
 
-    // Navigate to the next image within the folder
     const goToNextImage = () => {
         if (openFolder && currentImageIndex !== null) {
             const imagesInFolder = groupedImages[openFolder];
-            const nextIndex = (currentImageIndex + 1) % imagesInFolder.length; // Wrap around
+            const nextIndex = (currentImageIndex + 1) % imagesInFolder.length;
             setCurrentImageIndex(nextIndex);
         }
     };
 
-    // Navigate to the previous image within the folder
     const goToPreviousImage = () => {
         if (openFolder && currentImageIndex !== null) {
             const imagesInFolder = groupedImages[openFolder];
-            const prevIndex = (currentImageIndex - 1 + imagesInFolder.length) % imagesInFolder.length; // Wrap around
+            const prevIndex = (currentImageIndex - 1 + imagesInFolder.length) % imagesInFolder.length;
             setCurrentImageIndex(prevIndex);
         }
     };
 
+    const handleSelectionModeToggle = () => {
+        setSelectionMode(!selectionMode);
+        if (selectionMode) {
+            setSelectedImages([]);
+        }
+    };
+
+    const handleImageSelection = (event, imageUrl) => {
+        event.stopPropagation(); // Prevent the click from triggering the image open dialog
+        setSelectedImages(prev => {
+            if (prev.includes(imageUrl)) {
+                // Remove the image URL if already selected
+                return prev.filter(url => url !== imageUrl);
+            }
+            // Add the image URL if not already selected
+            return [...prev, imageUrl];
+        });
+    };
+    
+
+    const handleDeleteConfirmation = () => {
+        setConfirmDeleteOpen(true);
+    };
+
+    const handleDeleteCancel = () => {
+        setConfirmDeleteOpen(false);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        try {
+            const response = await fetch('/api/delete_select_image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image_urls: selectedImages
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete images');
+            }
+
+            setImageData(prev => {
+                const updatedData = prev.filter(item => !selectedImages.includes(item.image_url));
+                const isFolderEmpty = !updatedData.some(item => item.source === openFolder); // Check if folder is empty after deletion
+                if (isFolderEmpty) {
+                    setOpenFolder(null); // Close the folder if it's empty
+                }
+                return updatedData;
+            });
+
+            setSnackbarMessage('Images deleted successfully');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+            setSelectionMode(false);
+            setSelectedImages([]);
+        } catch (error) {
+            setSnackbarMessage('Failed to delete images: ' + error.message);
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
+        setConfirmDeleteOpen(false);
+    };
+
+
     const ImageCard = ({ item, onClick }) => (
         <Card
-            onClick={onClick}
+            onClick={selectionMode ? null : onClick}  // Don't trigger image click during selection mode
             sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                cursor: 'pointer',
+                cursor: selectionMode ? 'pointer' : 'default',  // Change cursor during selection mode
                 border: '1px solid #e0e0e0',
                 borderRadius: '4px',
                 transition: 'all 0.2s ease',
+                position: 'relative',
                 '&:hover': {
                     borderColor: '#0078D7',
                     backgroundColor: '#f5f9ff',
@@ -138,6 +217,20 @@ const ImageDataFetcher = () => {
                 },
             }}
         >
+            {selectionMode && (
+                <Checkbox
+                    checked={selectedImages.includes(item.image_url)}
+                    onChange={(e) => handleImageSelection(e, item.image_url)} // Update the selected images on checkbox change
+                    sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        zIndex: 1,
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        borderRadius: '50%',
+                    }}
+                />
+            )}
             <Box sx={{ position: 'relative', paddingTop: '75%' }}>
                 <CardMedia
                     component="img"
@@ -155,14 +248,14 @@ const ImageDataFetcher = () => {
                 />
             </Box>
         </Card>
-    );
+    );    
 
     if (loading) {
         return (
-            <Box 
-                display="flex" 
-                justifyContent="center" 
-                alignItems="center" 
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
                 height="100vh"
                 bgcolor="#ffffff"
             >
@@ -173,10 +266,10 @@ const ImageDataFetcher = () => {
 
     if (error) {
         return (
-            <Box 
-                display="flex" 
-                justifyContent="center" 
-                alignItems="center" 
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
                 height="100vh"
                 bgcolor="#ffffff"
             >
@@ -188,12 +281,7 @@ const ImageDataFetcher = () => {
     }
 
     return (
-        <Box sx={{ 
-            height: '100vh', 
-            backgroundColor: '#ffffff', 
-            display: 'flex', 
-            flexDirection: 'column' 
-        }}>
+        <Box sx={{ height: '100vh', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{
                 backgroundColor: '#0078D7',
                 color: 'white',
@@ -206,6 +294,44 @@ const ImageDataFetcher = () => {
                     <FolderIcon sx={{ marginRight: 1 }} />
                     <Typography variant="h6">Image Explorer</Typography>
                 </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {/* Only show the 'Select' button if a folder is open */}
+                    {openFolder && (
+                        <Button
+                            variant="contained"
+                            color={selectionMode ? "secondary" : "primary"}
+                            startIcon={selectionMode ? <UnselectIcon /> : <SelectIcon />}
+                            onClick={handleSelectionModeToggle}
+                            sx={{
+                                bgcolor: selectionMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                '&:hover': {
+                                    bgcolor: selectionMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.2)',
+                                },
+                            }}
+                        >
+                            {selectionMode ? 'Cancel' : 'Select'}
+                        </Button>
+                    )}
+
+                    {/* Show the delete button only if a folder is open and selection mode is active */}
+                    {selectionMode && selectedImages.length > 0 && openFolder && (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={handleDeleteConfirmation}
+                            sx={{
+                                bgcolor: 'rgba(255, 82, 82, 0.8)',
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 82, 82, 1)',
+                                },
+                            }}
+                        >
+                            Delete ({selectedImages.length})
+                        </Button>
+                    )}
+                </Box>
+
             </Box>
 
             <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -233,16 +359,16 @@ const ImageDataFetcher = () => {
                                 }
                             }}
                         >
-                            {openFolder === source ? 
+                            {openFolder === source ?
                                 <KeyboardArrowDown sx={{ color: '#666', mr: 1 }} /> :
                                 <KeyboardArrowRight sx={{ color: '#666', mr: 1 }} />
                             }
-                            <FolderIcon sx={{ 
+                            <FolderIcon sx={{
                                 color: openFolder === source ? '#0078D7' : '#FFC107',
-                                mr: 1 
+                                mr: 1
                             }} />
-                            <Typography 
-                                variant="body2" 
+                            <Typography
+                                variant="body2"
                                 sx={{
                                     fontWeight: openFolder === source ? 600 : 400,
                                     fontSize: '0.875rem'
@@ -256,20 +382,26 @@ const ImageDataFetcher = () => {
 
                 <Box sx={{ flex: 1, p: 3, overflowY: 'auto', backgroundColor: '#ffffff' }}>
                     <Grid container spacing={2}>
-                        {openFolder && groupedImages[openFolder].map((item, index) => (
-                            <Grid item xs={12} sm={6} md={4} key={`${openFolder}-${index}`}>
-                                <ImageCard item={item} onClick={() => handleImageClick(item, index, openFolder)} />
-                            </Grid>
-                        ))}
+                        {openFolder && groupedImages[openFolder] && groupedImages[openFolder].length > 0 ? (
+                            groupedImages[openFolder].map((item, index) => (
+                                <Grid item xs={12} sm={6} md={4} key={`${openFolder}-${index}`}>
+                                    <ImageCard item={item} onClick={() => handleImageClick(item, index, openFolder)} />
+                                </Grid>
+                            ))
+                        ) : (
+                            <Typography variant="h6" color="textSecondary" align="center">
+
+                            </Typography>
+                        )}
                     </Grid>
                 </Box>
+
             </Box>
 
-            {/* Image details dialog */}
-            <Dialog 
-                open={openDialog} 
-                onClose={handleDialogClose} 
-                maxWidth="lg" 
+            <Dialog
+                open={openDialog}
+                onClose={handleDialogClose}
+                maxWidth="lg"
                 fullWidth
                 PaperProps={{
                     sx: {
@@ -279,7 +411,6 @@ const ImageDataFetcher = () => {
                     }
                 }}
             >
-                {/* Left Arrow */}
                 <IconButton
                     onClick={goToPreviousImage}
                     sx={{
@@ -299,7 +430,6 @@ const ImageDataFetcher = () => {
                     <ChevronLeftIcon />
                 </IconButton>
 
-                {/* Right Arrow */}
                 <IconButton
                     onClick={goToNextImage}
                     sx={{
@@ -319,8 +449,8 @@ const ImageDataFetcher = () => {
                     <ChevronRightIcon />
                 </IconButton>
 
-                <DialogTitle 
-                    sx={{ 
+                <DialogTitle
+                    sx={{
                         borderBottom: '1px solid #e0e0e0',
                         bgcolor: '#f8f9fa',
                         m: 0,
@@ -339,15 +469,14 @@ const ImageDataFetcher = () => {
                 <DialogContent sx={{ p: 0 }}>
                     {selectedImage && (
                         <Box sx={{ display: 'flex', height: '600px' }}>
-                            {/* Left side - Image preview */}
-                            <Box sx={{ 
+                            <Box sx={{
                                 flex: 2,
                                 p: 3,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 borderRight: '1px solid #e0e0e0'
                             }}>
-                                <Box sx={{ 
+                                <Box sx={{
                                     flex: 1,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -367,7 +496,6 @@ const ImageDataFetcher = () => {
                                     />
                                 </Box>
 
-                                {/* URL section */}
                                 <Box sx={{ mt: 2 }}>
                                     <Typography variant="subtitle2" gutterBottom>
                                         Image URL:
@@ -387,7 +515,6 @@ const ImageDataFetcher = () => {
                                 </Box>
                             </Box>
 
-                            {/* Right side - Details */}
                             <Box sx={{ flex: 1, p: 3 }}>
                                 <Typography variant="h6" gutterBottom>
                                     Details
@@ -416,22 +543,43 @@ const ImageDataFetcher = () => {
                 </DialogContent>
             </Dialog>
 
-            {/* Snackbar notifications */}
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={confirmDeleteOpen}
+                onClose={handleDeleteCancel}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Are you sure you want to delete {selectedImages.length} selected {selectedImages.length === 1 ? 'image' : 'images'}? This action cannot be undone.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDeleteCancel}>Cancel</Button>
+                    <Button onClick={handleDeleteConfirmed} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Snackbar for notifications */}
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}  // This sets the position
             >
-                <Alert 
-                    onClose={handleSnackbarClose} 
-                    severity="success" 
-                    sx={{ 
-                        backgroundColor: '#0078D7', 
-                        color: 'white',
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity={snackbarSeverity}
+                    sx={{
+                        backgroundColor: snackbarSeverity === 'success' ? '#0078D7' : undefined,
+                        color: snackbarSeverity === 'success' ? 'white' : undefined,
                         '& .MuiAlert-icon': {
-                            color: 'white'
-                        }
+                            color: snackbarSeverity === 'success' ? 'white' : undefined,
+                        },
                     }}
                 >
                     {snackbarMessage}
