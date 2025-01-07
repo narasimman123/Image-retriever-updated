@@ -29,7 +29,7 @@ const ContentRetriever = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.post('/api/content-retriever', { query: searchQuery });
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/content-retriever', { query: searchQuery });
 
       setResults(response.data || '');
 

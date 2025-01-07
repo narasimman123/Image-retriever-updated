@@ -49,7 +49,7 @@ const AdminMenu = () => {
   const handleDemandClick = async () => {
     SetUpdateDemanName('Updating...');
     try {
-      const response = await axios.post('/api/update-vector');
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/update-vector');
       if (response.status === 200) {
         setSnackbarMessage('Update successful!');
         SetUpdateDemanName('Updated...');

@@ -47,7 +47,7 @@ const ConfigManager = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post('/api/config-settings', {
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/config-settings', {
         skip_keywords: keywords,
         word_count_threshold: wordCountThreshold
       });

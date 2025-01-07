@@ -50,7 +50,7 @@ const ImageRetriever = () => {
 
     try {
       // Send the useLLM toggle state to the API
-      const response = await axios.post('/api/image_query', { query, useLLM });
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/image_query', { query, useLLM });
 
       // Check if response contains results or LLM response
       setResults(response.data);

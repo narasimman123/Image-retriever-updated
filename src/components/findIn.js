@@ -46,7 +46,7 @@ const FindIn = () => {
   const handleDemandClick = async () => {
     setIsLoading(true); // Start loading
     try {
-      const response = await axios.post('/api/update-vector');
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/update-vector');
       if (response.status === 200) {
         window.location.reload();
       }

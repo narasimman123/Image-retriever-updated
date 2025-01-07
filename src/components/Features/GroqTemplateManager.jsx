@@ -35,7 +35,7 @@ const GroqTemplateManager = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.post('/api/groq-settings', {
+      const response = await axios.post(process.env.REACT_APP_API_URL+'/api/groq-settings', {
         template,
         temperature
       });
