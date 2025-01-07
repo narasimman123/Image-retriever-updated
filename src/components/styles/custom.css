@@ -118,3 +118,19 @@
 .icon-text svg {
   margin-right: 5px; /* Space between the icon and text */
 }
+.css-1gtchvp-MuiPaper-root{
+  max-height: 75vh;
+  overflow: auto;
+}
+.css-1gtchvp-MuiPaper-root::-webkit-scrollbar {
+  width: 5px;
+}
+.css-1gtchvp-MuiPaper-root::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+.css-1gtchvp-MuiPaper-root::-webkit-scrollbar-thumb {
+  background: #c2c1c1; 
+}
+.css-1gtchvp-MuiPaper-root::-webkit-scrollbar-thumb:hover {
+  background: #c9c8c8; 
+}
