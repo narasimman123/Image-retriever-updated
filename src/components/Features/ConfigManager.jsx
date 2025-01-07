@@ -17,7 +17,7 @@ const ConfigManager = () => {
 
   const fetchConfig = async () => {
     try {
-      const response = await axios.get('/api/config-settings');
+      const response = await axios.get(process.env.REACT_APP_API_URL+'/api/config-settings');
       setKeywords(response.data.skip_keywords);
       setWordCountThreshold(response.data.word_count_threshold);
     } catch (error) {

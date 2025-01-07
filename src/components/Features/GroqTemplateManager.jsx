@@ -15,7 +15,7 @@ const GroqTemplateManager = () => {
 
   const fetchTemplateSettings = async () => {
     try {
-      const response = await axios.get('/api/groq-settings');
+      const response = await axios.get(process.env.REACT_APP_API_URL+'/api/groq-settings');
       setTemplate(response.data.template);
       setTemperature(response.data.temperature);
     } catch (error) {

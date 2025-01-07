@@ -47,7 +47,7 @@ const ImageDataFetcher = () => {
     useEffect(() => {
         const fetchImageData = async () => {
             try {
-                const response = await fetch('/api/get_image_data');
+                const response = await fetch(process.env.REACT_APP_API_URL+'/api/get_image_data');
                 if (!response.ok) {
                     throw new Error('Failed to fetch image data');
                 }
@@ -160,7 +160,7 @@ const ImageDataFetcher = () => {
 
     const handleDeleteConfirmed = async () => {
         try {
-            const response = await fetch('/api/delete_select_image', {
+            const response = await fetch(process.env.REACT_APP_API_URL+'/api/delete_select_image', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
