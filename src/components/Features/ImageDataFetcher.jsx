@@ -264,21 +264,21 @@ const ImageDataFetcher = () => {
         );
     }
 
-    if (error) {
-        return (
-            <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100vh"
-                bgcolor="#ffffff"
-            >
-                <Typography variant="h6" color="error">
-                    Error: {error}
-                </Typography>
-            </Box>
-        );
-    }
+    // if (error) {
+    //     return (
+    //         <Box
+    //             display="flex"
+    //             justifyContent="center"
+    //             alignItems="center"
+    //             height="100vh"
+    //             bgcolor="#ffffff"
+    //         >
+    //             <Typography variant="h6" color="error">
+    //                 Error: {error}
+    //             </Typography>
+    //         </Box>
+    //     );
+    // }
 
     return (
         <Box sx={{ height: '100vh', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column' }}>
@@ -342,7 +342,16 @@ const ImageDataFetcher = () => {
                     overflowY: 'auto',
                     padding: 2
                 }}>
-                    {Object.keys(groupedImages).map((source, index) => (
+                    {error ? (
+                        <Typography variant="body1" color="error" align="center" sx={{ mt: 2 }}>
+                             Backend is not Connected
+                        </Typography>
+                    ) : Object.keys(groupedImages).length === 0 ? (
+                        <Typography variant="body1" color="textSecondary" align="center" sx={{ mt: 2 }}>
+                            Vector Database is Empty
+                        </Typography>
+                    ) : (
+                        Object.keys(groupedImages).map((source, index) => (
                         <Box
                             key={index}
                             onClick={() => handleFolderClick(source)}
@@ -377,7 +386,7 @@ const ImageDataFetcher = () => {
                                 {source} ({groupedImages[source].length})
                             </Typography>
                         </Box>
-                    ))}
+                    )))}
                 </Box>
 
                 <Box sx={{ flex: 1, p: 3, overflowY: 'auto', backgroundColor: '#ffffff' }}>
