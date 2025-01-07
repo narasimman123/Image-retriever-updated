@@ -106,12 +106,12 @@ const ChangePondDrive = ({redirectLink,setRedirectLink }) => {
       'application/vnd.openxmlformats-officedocument.presentationml.presentation';
 
     const invalidFiles = selectedFiles.filter(
-      (file) => file.type !== validType || file.size > 5 * 1024 * 1024
+      (file) => file.type !== validType || file.size > 20 * 1024 * 1024 // Updated size to 20MB
     );
 
     if (invalidFiles.length > 0) {
       setSnackbarMessage(
-        'Some files are invalid (type or size). Please upload PPTX files (max 5MB).'
+        'Some files are invalid (type or size). Please upload PPTX files (max 20MB).' // Updated message
       );
       setSnackbarOpen(true);
       return;
